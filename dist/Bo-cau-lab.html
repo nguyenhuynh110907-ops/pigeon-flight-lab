@@ -1,0 +1,620 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Mô phỏng tương tác đàn bồ câu và máy bay dân dụng: phát hiện, phản ứng, tránh né và độ cao bird strike. Có nguồn nghiên cứu và giả định minh bạch.">
+  <meta name="theme-color" content="#101820">
+  <title>Pigeon Flight Lab · Mô phỏng bồ câu & máy bay</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23101820'/%3E%3Cpath d='M5 21 13 9 16 17 24 7 27 21' fill='none' stroke='%23dcf57a' stroke-width='3' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <style>:root{color-scheme:dark;--bg:#0c131a;--surface:#131d26;--raised:#18242e;--border:#2c3943;--muted:#9caeb9;--text:#edf2f3;--lime:#def48a;--teal:#68d9d0;--amber:#f2bc66;--pink:#f78092;--mono:'SFMono-Regular',Consolas,'Liberation Mono',monospace;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:16px;line-height:1.5}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text)}button,input,select{font:inherit}button,a,input,select,summary{-webkit-tap-highlight-color:transparent}button,select,summary{cursor:pointer}button{color:inherit}button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--lime);outline-offset:4px}a{color:var(--teal);text-underline-offset:4px}button{border:0}button:disabled{opacity:.5;cursor:default}.topbar{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);padding:19px 3vw;gap:20px}.brand{display:flex;align-items:center;gap:12px;font-size:15px;font-weight:750;letter-spacing:1.4px;text-decoration:none;color:var(--text)}.brand-light{font-weight:450;color:var(--muted)}.brand-symbol{font-size:36px;line-height:30px;color:var(--lime)}.header-right{display:flex;align-items:center;gap:28px}.edition{font:12px var(--mono);text-transform:uppercase;letter-spacing:1px;color:var(--muted)}.edition span{color:var(--lime);margin:0 8px}.quiet{background:transparent;font-size:14px;padding:8px 0;color:var(--text);white-space:nowrap}.quiet:hover{color:var(--lime)}.quiet span{padding-left:7px}main{max-width:1660px;margin:auto;padding:35px 3vw 56px}.page-heading{display:flex;justify-content:space-between;align-items:center;gap:20px;margin-bottom:27px}.eyebrow{font:12px var(--mono);letter-spacing:1.7px;color:var(--muted)}h1{font-size:clamp(26px,2.5vw,38px);font-weight:540;letter-spacing:-1.2px;line-height:1.25;margin:12px 0 7px}.page-heading p{margin:0;color:var(--muted);font-size:16px}.model-tag{border:1px solid var(--border);padding:7px 10px;font-size:12px;white-space:nowrap;color:var(--muted)}.model-tag span{border-left:1px solid var(--border);margin-left:8px;padding-left:8px;font-family:var(--mono)}.workspace{display:grid;grid-template-columns:minmax(0,1fr) 328px;align-items:start;gap:22px}.simulation-column{min-width:0}.instrument-panel{border:1px solid var(--border);background:var(--surface);border-radius:12px;overflow:hidden}.plot-header{display:flex;justify-content:space-between;align-items:center;padding:20px 22px 17px;gap:15px}.label{font:12px var(--mono);letter-spacing:1.5px;color:var(--muted)}h2{font-size:18px;font-weight:570;margin:4px 0;line-height:1.4}.sim-status{border:1px solid #475747;color:var(--lime);font:12px var(--mono);padding:6px 9px;white-space:nowrap}.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:16px 7px;background:#15212a}.metrics>div{border-right:1px solid var(--border);padding:0 15px;display:flex;flex-direction:column;gap:3px}.metrics>div:last-child{border:0}.metrics span{font-size:13px;color:#c3cdd3}.metrics strong{font:500 clamp(23px,2.2vw,32px) var(--mono);letter-spacing:-1.2px;line-height:1.4}.metrics strong em{font:13px var(--mono);font-style:normal;color:var(--muted);letter-spacing:0}.metrics small{font-size:12px;color:var(--muted);line-height:1.6}.metrics #reaction-value{color:var(--lime)}.metrics .danger{color:var(--pink)}.canvas-wrap{position:relative;height:365px;background:#111b23}.canvas-wrap canvas,.side-wrap canvas{display:block;width:100%;height:100%}.plot-caption{position:absolute;inset:15px 20px auto;display:flex;justify-content:space-between;pointer-events:none;gap:15px;font:12px var(--mono);letter-spacing:.9px;color:var(--muted)}.view-note{position:absolute;left:20px;bottom:13px;font-size:12px;color:var(--teal);background:#111b23bf;padding:3px 6px;pointer-events:none}.encounter-clock{position:absolute;right:20px;top:48px;display:flex;flex-direction:column;align-items:flex-end;background:#111b23b3;padding:6px 8px;pointer-events:none}.encounter-clock span{font:12px var(--mono);letter-spacing:1px;color:var(--muted)}.encounter-clock strong{font:27px var(--mono);margin:5px 0}.encounter-clock small{font-size:12px;color:var(--muted)}.legend{display:flex;flex-wrap:wrap;gap:12px 18px;padding:12px 20px;border-top:1px solid #23323d;border-bottom:1px solid var(--border);font-size:12px;color:#b7c5ce}.legend span{display:inline-flex;gap:6px;align-items:center}.bird-dot{display:inline-block;width:6px;height:6px;border-radius:50%}.cruise{background:var(--teal)}.alert{background:var(--amber)}.escape{background:var(--lime)}.contact-mark{font:20px var(--mono);line-height:12px;color:var(--pink)}.plane-mark{color:white}.side-wrap{height:165px;position:relative;background:#101922}.playback{display:flex;align-items:center;gap:14px;padding:16px 20px;border-top:1px solid var(--border)}.play-button{background:var(--lime);color:#18231a;font-size:14px;font-weight:680;min-width:170px;padding:12px 15px;border-radius:5px;white-space:nowrap}.play-button:hover{background:#ebffad}.play-button span{margin-right:5px}.icon-button{font:25px var(--mono);background:transparent;border:1px solid var(--border);width:38px;height:38px;flex-shrink:0;border-radius:4px}.icon-button:hover{background:var(--raised)}.time-area{flex:1;min-width:70px}.time-text{display:flex;justify-content:space-between;font:12px var(--mono);gap:5px}.time-text span:last-child{color:var(--muted)}.timeline{height:3px;background:#35414b;margin-top:8px}.timeline span{display:block;height:100%;width:0;background:var(--lime)}select{border:1px solid var(--border);background:#19252e;color:var(--text);border-radius:4px;padding:12px 9px;font-size:14px;max-width:100%;min-height:40px}.speed-control select{padding:6px;width:62px}.wide{width:100%}.readout{display:flex;justify-content:space-between;gap:20px;border-bottom:1px solid var(--border);padding:22px 0}.readout p{font-size:14px;margin:6px 0 0;max-width:560px;line-height:1.6}.bird-counter{display:flex;flex-direction:column;gap:4px;font-size:12px;white-space:nowrap;color:var(--muted)}.bird-counter b{color:var(--text);font-family:var(--mono);display:inline-block;min-width:23px}.altitude-card{margin-top:22px;background:#18211f;border:1px solid #354539;border-radius:7px;padding:20px 23px}.altitude-title{display:flex;gap:24px;align-items:center}.number-accent{font:48px var(--mono);color:var(--lime);letter-spacing:-3px}.number-accent>span{font-size:22px;letter-spacing:0}.altitude-title h2{font-size:16px}.altitude-title p{font-size:13px;color:#b9c8be;line-height:1.6;margin:4px 0}.altitude-title a{color:#dbe9b0}.altitude-bar{display:flex;margin:17px 0 12px;border-radius:3px;overflow:hidden;font:12px var(--mono)}.altitude-bar>span{display:flex;justify-content:space-between;gap:8px;padding:12px 12px}.low-alt{width:70%;background:#3c4d32;color:#e2eecc}.high-alt{width:30%;background:#25372f;color:#b3c6b5}.altitude-context{font-size:13px;margin:12px 0 5px}.fine-print{font-size:12px;color:var(--muted);margin:5px 0 0;line-height:1.6}.controls{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:19px}.controls-title{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:17px}.controls-title h2{font-size:16px}.controls-title>span{font:12px var(--mono);color:var(--muted)}.field-label{display:block;font-size:14px;margin:14px 0 8px}.control-hint{font-size:12px;color:var(--muted);line-height:1.6;margin:12px 0}.control-section{border-top:1px solid var(--border);padding:14px 0 2px;margin-top:16px}.control-section summary{display:flex;justify-content:space-between;align-items:center;list-style:none;font-size:14px;font-weight:600;gap:12px}.control-section summary::-webkit-details-marker{display:none}.control-section summary b{font:12px var(--mono);color:var(--muted);margin-right:12px}.expand-symbol{color:var(--muted);font:18px var(--mono)}.control-section[open] .expand-symbol{font-size:0}.control-section[open] .expand-symbol:after{content:'−';font-size:18px}.slider-field{margin:19px 0 14px}.slider-field>div:first-child{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:14px}.slider-field label{line-height:1.6;font-size:13px}.slider-field output{font:13px var(--mono);white-space:nowrap;color:var(--text)}.assumed{font:12px var(--mono);display:inline-block;vertical-align:middle;padding:1px 3px;background:#353833;color:#dbd5a2;border-radius:2px;margin-left:2px;cursor:help}.range-ends{display:flex;justify-content:space-between;color:var(--muted);font-size:12px;margin-top:-2px}input[type=range]{width:100%;height:18px;margin:12px 0 2px;appearance:none;background:transparent;cursor:pointer;accent-color:var(--lime)}input[type=range]::-webkit-slider-runnable-track{height:3px;background:linear-gradient(to right,var(--lime) 0%,var(--lime) var(--pct,40%),#3b4851 var(--pct,40%),#3b4851 100%);border-radius:2px}input[type=range]::-webkit-slider-thumb{appearance:none;height:12px;width:12px;border-radius:50%;background:var(--lime);margin-top:-4.5px;box-shadow:0 0 0 4px #def48a0c}input[type=range]::-moz-range-track{height:3px;background:#3b4851}input[type=range]::-moz-range-thumb{height:12px;width:12px;background:var(--lime);border:0;border-radius:50%}.estimate{background:#1e2a2a;border-left:2px solid var(--lime);padding:12px 12px;margin:14px 0}.estimate>span{font-size:12px;display:block;color:#b8c9c3}.estimate strong{font:22px var(--mono);color:var(--lime);display:block;margin:4px 0}.estimate small{font-size:12px;color:var(--muted);line-height:1.6;display:block}.aircraft-spec{font-size:13px;margin:16px 0;color:#d8e1e7}.aircraft-spec>span{display:block;font:12px var(--mono);color:var(--muted);margin-top:4px}.check-field{display:flex;gap:12px;margin:18px 0;font-size:13px;align-items:flex-start}.check-field input{accent-color:var(--lime);margin-top:4px;width:16px;height:16px;flex-shrink:0}.check-field small{display:block;font-size:12px;color:var(--muted);margin-top:5px}.seed-row{display:flex;gap:13px}.seed-row input{width:100%;min-width:0;background:var(--raised);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:4px;font:14px var(--mono)}.secondary{border:1px solid #536148;background:transparent;color:var(--lime);padding:12px 8px;font-size:13px;border-radius:4px}.secondary:hover{background:#26332a}.assumption-note{border-top:1px solid var(--border);margin-top:22px;padding-top:17px}.assumption-note>span{font:12px var(--mono);color:#d8c89c;letter-spacing:1px}.assumption-note p{font-size:12px;color:var(--muted);line-height:1.7;margin:8px 0 0}.research{margin-top:40px;border-top:1px solid var(--border);padding-top:28px}.section-heading{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:21px}.section-heading h2{font-size:23px;font-weight:500;margin-top:7px}.source-date{font:12px var(--mono);color:var(--muted)}.research-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:22px}.research article{border-left:1px solid var(--border);padding:4px 0 5px 18px}.source-label{font:12px var(--mono);letter-spacing:1px;color:var(--muted);line-height:1.7}.research h3{font-size:16px;font-weight:550;margin:12px 0 8px}.research article p{font-size:14px;color:#b3c0c9;line-height:1.8;margin:0 0 15px}.research article a{font-size:12px;line-height:1.6;text-decoration:none}.research a:hover{text-decoration:underline}.research-foot{display:flex;gap:30px;align-items:center;padding:20px 0;margin-top:20px;border-top:1px solid var(--border)}.research-foot p{font-size:13px;line-height:1.8;color:var(--muted);margin:0;flex:1}.research-foot b{color:#d2dbe0;font-weight:500}footer{display:flex;justify-content:space-between;gap:20px;padding:20px 3vw;border-top:1px solid var(--border);font:12px var(--mono);color:var(--muted)}dialog{border:1px solid #41525e;border-radius:12px;background:var(--surface);color:var(--text);width:min(760px,95vw);max-height:90dvh;padding:0;box-shadow:0 30px 100px #0009}dialog::backdrop{background:#000a;backdrop-filter:blur(5px)}.dialog-heading{display:flex;align-items:center;justify-content:space-between;gap:15px;padding:23px 28px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--surface);z-index:1}.dialog-heading h2{font-size:22px;margin:6px 0 0}.dialog-body{padding:8px 28px 30px}.dialog-body h3{font-size:17px;font-weight:550;color:var(--lime);margin:26px 0 10px}.dialog-body p{font-size:16px;line-height:1.8;color:#bdcad2}.dialog-body code{font:13px var(--mono);background:#21313c;padding:3px 5px;overflow-wrap:anywhere}.dialog-callout{font-size:14px;color:#e5d3aa;border:1px solid #605338;background:#302a20;padding:17px;line-height:1.8;margin-top:22px}.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);opacity:0;pointer-events:none;background:var(--lime);color:#1b2619;padding:12px 20px;border-radius:5px;font-size:14px;transition:.2s;z-index:10;max-width:90vw}.toast.visible{opacity:1;transform:translate(-50%,0)}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+@media(min-width:1500px){.canvas-wrap{height:430px}.workspace{grid-template-columns:minmax(0,1fr) 355px}.metrics small{font-size:12px}}
+@media(max-width:1150px){main{padding:26px 20px}.topbar{padding:17px 20px}.workspace{grid-template-columns:minmax(0,1fr) 298px;gap:16px}.controls{padding:16px}.metrics>div{padding:0 10px}.metrics span{font-size:12px}.metrics small{font-size:12px}.metrics strong{font-size:23px}.playback{gap:12px;padding:13px}.play-button{min-width:140px;font-size:13px;padding:12px 9px}.playback>.quiet{font-size:12px}.research-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.altitude-title{gap:15px}.altitude-bar{font-size:12px}.altitude-bar>span{padding:8px}.edition{display:none}}
+@media(max-width:900px){.workspace{grid-template-columns:minmax(0,1fr)}.controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 25px}.controls-title,.controls>.field-label,.controls>#preset,.controls>.control-hint,.assumption-note{grid-column:1/-1}.controls>#preset{max-width:440px}.control-section{align-self:start}.metrics small{font-size:12px}.metrics span{font-size:13px}.canvas-wrap{height:360px}.metrics strong{font-size:28px}.page-heading{align-items:flex-start}.model-tag{margin-top:5px}.readout p{max-width:none}}
+@media(max-width:600px){.topbar{padding:14px 16px}.brand{font-size:12px;letter-spacing:1px;gap:7px}.brand-symbol{font-size:30px}.header-right .quiet{font-size:12px}.header-right{gap:0}main{padding:25px 12px 35px}.page-heading{margin:0 4px 23px;display:block}.eyebrow{font-size:12px;letter-spacing:1.3px}h1{font-size:27px;letter-spacing:-.8px}.page-heading p{font-size:14px;line-height:1.7}.model-tag{display:inline-block;margin-top:14px;font-size:12px;padding:5px 8px}.plot-header{padding:15px 14px}.plot-header h2{font-size:14px}.label{font-size:12px}.sim-status{font-size:12px}.metrics{grid-template-columns:repeat(2,minmax(0,1fr));padding:0}.metrics>div{padding:12px 14px;border-bottom:1px solid var(--border)}.metrics>div:nth-child(2){border-right:0}.metrics>div:nth-child(3),.metrics>div:nth-child(4){border-bottom:0}.metrics span{font-size:12px}.metrics strong{font-size:27px}.metrics small{font-size:12px}.canvas-wrap{height:330px}.plot-caption{left:12px;right:12px;font-size:12px;letter-spacing:.4px}.encounter-clock{right:12px;top:45px}.encounter-clock span{font-size:12px}.encounter-clock strong{font-size:24px}.encounter-clock small{font-size:12px}.view-note{left:8px;font-size:12px}.legend{gap:6px 12px;font-size:12px;padding:12px 12px}.playback{flex-wrap:wrap;gap:12px}.play-button{min-width:0;flex:1;order:1}.icon-button{order:2}.time-area{order:4;flex:1;min-width:60%}.speed-control{order:3}.playback>.quiet{order:5}.side-wrap{height:155px}.readout{display:block;padding:17px 3px}.bird-counter{flex-direction:row;flex-wrap:wrap;gap:12px;margin-top:14px;font-size:12px}.bird-counter b{min-width:0}.altitude-card{padding:16px}.altitude-title{align-items:flex-start}.number-accent{font-size:38px}.altitude-title h2{font-size:14px}.altitude-title p{font-size:12px}.altitude-bar{font-size:12px}.altitude-bar>span{gap:4px;padding:8px 6px}.controls{display:block;margin-top:6px;padding:20px}.slider-field label{font-size:14px}.slider-field output{font-size:14px}.control-section summary{font-size:15px}.range-ends{font-size:12px}.research-grid{grid-template-columns:1fr;gap:23px}.research{margin-top:30px;padding:23px 5px 0}.section-heading{display:block}.section-heading h2{font-size:22px}.source-date{display:block;font-size:12px;margin-top:12px}.research-foot{display:block}.research-foot .quiet{margin-top:15px}footer{display:block;font-size:12px;padding:20px 17px}footer>span{display:block;margin:7px 0}.dialog-heading{padding:20px}.dialog-heading h2{font-size:19px}.dialog-body{padding:4px 20px 25px}.dialog-body p{font-size:14px}.dialog-body h3{font-size:16px}.controls .control-hint{font-size:13px}.check-field{font-size:14px}.assumption-note p{font-size:13px}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+
+/* Readable control labels and narrow-screen details. */
+.slider-field label{font-size:14px}.metrics small{font-size:12px}.metrics span{font-size:14px}.control-hint,.fine-print,.assumption-note p{font-size:13px}.research article p{font-size:16px}.research-foot p{font-size:14px}.playback{border-bottom:1px solid var(--border);border-top:0}.assumed{font-size:12px}.plot-caption{font-size:12px}.range-ends{font-size:12px}.legend{font-size:12px}.view-note{font-size:12px}.encounter-clock span,.encounter-clock small{font-size:12px}.label,.source-label{font-size:12px}.research article a{font-size:14px}.expand-symbol{font-size:18px}.control-section[open] .expand-symbol{font-size:0}
+@media(max-width:600px){.plot-caption{font-size:12px;letter-spacing:0}.plot-caption>span:last-child{max-width:130px;text-align:right}.view-note{max-width:210px;font-size:12px;bottom:4px}.metrics span{font-size:13px}.metrics small{font-size:12px}.legend{font-size:12px}.encounter-clock{top:65px}.encounter-clock span{max-width:150px;text-align:right}.altitude-bar{font-size:12px}.altitude-bar>span{flex-direction:column}.source-label{font-size:12px}.controls-title h2{font-size:18px}}
+
+/* Version 2: encounter construction, prediction and sensory evidence. */
+.intercept-strip{display:flex;justify-content:space-between;gap:18px;align-items:center;padding:15px 20px;background:#17242b;border-bottom:1px solid var(--border)}.intercept-strip .label{font-size:11px;letter-spacing:.9px}.intercept-strip p{margin:6px 0 0;font-size:13px;line-height:1.65;color:#ccd6dc}.intercept-strip>span{flex-shrink:0;font:12px var(--mono);color:var(--lime);border:1px solid #46513b;padding:7px 8px;white-space:nowrap}.danger{color:var(--pink)!important}.forecast-card,.signal-card{border:1px solid var(--border);border-radius:10px;background:var(--surface);padding:20px;margin:0 0 18px}.card-heading{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-bottom:18px}.card-heading h2{font-size:17px}.evidence-tag{font-size:11px;font-weight:400;color:#bfd0d8;border:1px solid #475460;padding:3px 5px;display:inline-block;line-height:1.45}.slider-field .evidence-tag{margin-left:3px}.forecast-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}.forecast-grid>div,.signal-grid>div{display:flex;flex-direction:column;gap:6px;min-width:0}.forecast-grid span,.signal-grid span{font-size:13px;color:#bbc9d1}.forecast-grid strong{font:20px var(--mono);color:var(--amber);line-height:1.4}.forecast-grid small,.signal-grid small{font-size:12px;color:var(--muted);line-height:1.7}.direction-row{display:flex;align-items:center;flex-wrap:wrap;gap:10px 17px;border-top:1px solid var(--border);padding:15px 0 7px;margin-top:18px;font-size:13px;color:#becbd2}.direction-row b{font:13px var(--mono);color:var(--lime)}.signal-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px}.signal-grid>div+div{border-left:1px solid var(--border);padding-left:22px}.signal-grid strong{font:23px var(--mono);line-height:1.5;color:var(--teal)}.signal-grid p{font-size:13px;line-height:1.75;color:#c5d0d6;margin:5px 0}.signal-counts{border-top:1px solid var(--border);padding-top:13px;margin-top:10px;font-size:13px;color:var(--lime);line-height:1.7}.signal-card .fine-print{margin-top:12px}.hypothesis-field{background:#332d22;padding:12px;border-left:2px solid var(--amber);margin-left:-4px;margin-right:-4px}.trace-button{margin-top:10px}input:disabled{opacity:.35;cursor:default}.forecast-mark{color:var(--amber);font-size:18px;line-height:10px}.target-mark{color:#a9b4c4;font:17px var(--mono);line-height:10px}.robot-mark{color:#c3a3f9;font-size:18px;line-height:10px}.evidence-table-wrap{margin-top:32px;overflow:auto;border:1px solid var(--border);border-radius:8px}.evidence-table{width:100%;border-collapse:collapse;font-size:14px;line-height:1.8;text-align:left;min-width:660px}.evidence-table caption{text-align:left;background:var(--surface);font-size:17px;font-weight:550;padding:17px 20px;color:var(--text);border-bottom:1px solid var(--border)}.evidence-table th,.evidence-table td{vertical-align:top;padding:14px 20px;border-bottom:1px solid var(--border)}.evidence-table thead{background:var(--surface);color:#c9d3da;font-size:12px}.evidence-table tbody th{font-size:14px;font-weight:550;width:18%;color:#dce7eb}.evidence-table tbody td{color:#b7c6cf;width:41%}.evidence-table tr:last-child th,.evidence-table tr:last-child td{border-bottom:0}.evidence-table a{font-size:14px}.evidence-table tbody tr:nth-child(even){background:#17222b55}.forecast-card .fine-print{font-size:12px;line-height:1.75}.controls [hidden]{display:none!important}
+@media(max-width:1150px){.intercept-strip{display:block}.intercept-strip>span{display:inline-block;margin-top:10px}.forecast-grid{gap:14px}.forecast-grid strong{font-size:18px}.card-heading{flex-wrap:wrap;gap:8px}.signal-grid{gap:16px}.signal-grid>div+div{padding-left:16px}.signal-grid strong{font-size:21px}}
+@media(max-width:600px){.intercept-strip{padding:14px}.intercept-strip .label{font-size:11px}.intercept-strip p{font-size:12px}.intercept-strip>span{font-size:12px;padding:5px 7px}.forecast-card,.signal-card{padding:17px}.card-heading{display:block}.card-heading .evidence-tag{margin-top:7px;font-size:11px}.forecast-grid{grid-template-columns:1fr;gap:17px}.forecast-grid>div{gap:4px}.forecast-grid>div+div{border-top:1px solid var(--border);padding-top:14px}.forecast-grid strong{font-size:22px}.forecast-grid small{font-size:13px}.direction-row{gap:10px 15px}.direction-row>span{flex-basis:100%}.signal-grid{grid-template-columns:1fr;gap:18px}.signal-grid>div+div{border-left:0;border-top:1px solid var(--border);padding:18px 0 0}.signal-grid p,.signal-grid small{font-size:13px}.evidence-table th,.evidence-table td{padding:13px 15px}.evidence-table{font-size:13px;min-width:720px}.evidence-table tbody th,.evidence-table a{font-size:13px}.evidence-table caption{font-size:16px;padding:15px}.legend{gap:9px 12px}}
+</style>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#" aria-label="Pigeon Flight Lab, đầu trang"><span class="brand-symbol">⌁</span><span>PIGEON<span class="brand-light"> / FLIGHT LAB</span></span></a>
+    <div class="header-right"><span class="edition">Columba livia <span>·</span> US AIRSPACE</span><button class="quiet" id="open-method">Cơ sở mô hình <span aria-hidden="true">↗</span></button></div>
+  </header>
+  <main>
+    <div class="page-heading"><div><div class="eyebrow">PHÒNG THÍ NGHIỆM CHUYỂN ĐỘNG / 01</div><h1>Khi đàn chim gặp máy bay.</h1><p>Giao cắt tâm dự kiến · cất/hạ cánh · tín hiệu cảm giác · dự báo hướng né.</p></div><span class="model-tag">Mô hình thăm dò <span>v2.0</span></span></div>
+    <div class="workspace">
+      <section class="simulation-column" aria-label="Không gian và kết quả mô phỏng">
+        <div class="instrument-panel">
+          <div class="plot-header"><div><span class="label">KHÔNG GIAN MÔ PHỎNG</span><h2>Đàn bồ câu × máy bay dân dụng</h2></div><div class="sim-status" id="sim-status">Sẵn sàng</div></div>
+          <div class="metrics" aria-live="off">
+            <div><span>Tới tâm đàn chim</span><strong id="distance-value">—</strong><small>Khoảng cách 3D · hiện tại</small></div>
+            <div><span>Bắt đầu né</span><strong id="reaction-value">—</strong><small>Trung vị cự ly tới máy bay</small></div>
+            <div><span>Cận tiếp nhỏ nhất</span><strong id="clearance-value">—</strong><small>Từ chim tới khối máy bay</small></div>
+            <div><span>Giao cắt hình học</span><strong id="contact-value">0 <em>/ 36</em></strong><small>Chỉ trong lượt mô phỏng này</small></div>
+          </div>
+          <div class="playback"><button class="play-button" id="play"><span aria-hidden="true">▶</span> Chạy mô phỏng</button><button class="icon-button" id="reset" aria-label="Chạy lại từ đầu" title="Chạy lại từ đầu">↺</button><div class="time-area"><div class="time-text"><span id="time-value">00.0 s</span><span id="duration-value">/ 18.0 s</span></div><div class="timeline"><span id="timeline-progress"></span></div></div><label class="speed-control"><span class="sr-only">Tốc độ phát</span><select id="playback-speed"><option value="0.25">0.25×</option><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option><option value="4">4×</option></select></label><button class="quiet" id="finish">Xem kết quả <span aria-hidden="true">→</span></button></div>
+          <div class="intercept-strip"><div><span class="label">ĐIỂM HẸN TÂM ĐÀN / QUỸ ĐẠO KHÔNG ĐỔI</span><p id="intercept-status"></p></div><span id="phase-badge"></span></div>
+          <div class="canvas-wrap" id="top-wrap"><canvas id="plan-canvas" aria-label="Góc nhìn từ trên: máy bay bay sang phải, đàn chim phát hiện và tránh né. Dấu cộng là điểm hẹn tâm đàn; nét cam là dự báo vận tốc không đổi."></canvas><div class="plot-caption"><span>01 / NHÌN TỪ TRÊN</span><span id="scale-label">Lưới 100 m</span></div><div class="view-note" id="view-note">Vòng nét đứt: ngưỡng phát hiện giả định</div><div class="encounter-clock"><span>ĐẾN CẬN TIẾP DỰ KIẾN</span><strong id="cpa-value">—</strong><small>Giữ nguyên vận tốc hiện tại</small></div></div>
+          <div class="legend"><span><i class="bird-dot cruise"></i>Bay bình thường</span><span><i class="bird-dot alert"></i>Đã nhận biết</span><span><i class="bird-dot escape"></i>Đang tránh né</span><span><i class="contact-mark">×</i>Giao cắt</span><span><i class="plane-mark">━</i>Máy bay</span><span><i class="forecast-mark">╌</i>Dự báo CV</span><span><i class="target-mark">+</i>Điểm hẹn</span><span><i class="robot-mark">▸</i>Chim cắt robot</span></div>
+          <div class="side-wrap"><canvas id="side-canvas" aria-label="Mặt cắt độ cao AGL; vùng tô vàng là 0 đến 500 feet trên mặt đất. Tỉ lệ trục cao khác trục ngang."></canvas><div class="plot-caption"><span>02 / MẶT CẮT ĐỘ CAO</span><span>Trục cao phóng đại · ft AGL</span></div></div>
+
+        </div>
+        <div class="readout"><div><span class="label">DIỄN BIẾN</span><p id="narrative" role="status">Nhấn Chạy mô phỏng để quan sát lần tiếp cận.</p></div><div class="bird-counter"><span><b id="detected-count">0</b> phát hiện trực tiếp</span><span><b id="reacted-count">0</b> bắt đầu né</span><span><b id="near-count">0</b> cận tiếp ≤ 10 m</span></div></div>
+        <section class="forecast-card"><div class="card-heading"><h2>Dự báo chuyển động & hướng né</h2><span class="evidence-tag">Động học · chưa hiệu chuẩn thực địa</span></div><div class="forecast-grid"><div><span>Tâm đàn: cận tiếp dự báo</span><strong id="center-cpa">—</strong><small>Giữ vận tốc hiện tại của đàn và máy bay</small></div><div><span>Độ cao tâm sau <b id="horizon-label">2</b> s</span><strong id="future-alt">—</strong><small id="future-heading"></small></div><div><span>Sai số dự báo CV · RMSE</span><strong id="prediction-error">—</strong><small>So với chuyển động mô phỏng sau dự báo</small></div></div><div class="direction-row"><span>Hướng né được chọn</span><b id="direction-left">+Y: 0</b><b id="direction-right">−Y: 0</b><b id="direction-down">Xuống: 0</b></div><p class="fine-print">+Y = trái, −Y = phải theo hướng máy bay. Đây là hướng đích khi bắt đầu né; vận tốc đổi dần theo giới hạn gia tốc. Né xuống có thể đồng thời rẽ. Nét cam: dự báo vận tốc không đổi (CV). Vòng cam: biên gia tốc giả định, không phải khoảng tin cậy. Tâm đàn có thể trống; cắt tâm không đồng nghĩa chạm mọi chim.</p></section>
+        <section class="signal-card"><div class="card-heading"><h2>Tín hiệu nhận được tại tâm đàn</h2><span class="evidence-tag" id="signal-mode"></span></div><div class="signal-grid"><div><span>Âm thanh · nguồn gắn máy bay</span><strong id="sound-level">Tắt</strong><small id="sound-detail"></small><p id="sound-evidence"></p></div><div><span>Ánh sáng · nguồn gắn máy bay</span><strong id="light-level">Tắt</strong><small id="light-detail"></small><p id="light-evidence"></p></div></div><div class="signal-counts" id="signal-counts"></div><p class="fine-print">Vượt tiêu chí tín hiệu không có nghĩa chim hoảng sợ. Chỉ chế độ giả thuyết mới nối tín hiệu với bắt đầu né. Không có cơ sở gán một tần số hoặc màu đèn là “loài săn mồi” hay bảo đảm né tuyệt đối.</p></section>
+        <section class="altitude-card" aria-labelledby="altitude-heading"><div class="altitude-title"><span class="number-accent">70<span>%</span></span><div><h2 id="altitude-heading">Vùng độ cao thường ghi nhận bird strike</h2><p>Khoảng 70% số vụ được báo cáo nằm ở <b>0–500 ft AGL</b> (0–152,4 m). <a href="https://www.faa.gov/airports/airport_safety/wildlife/faq" target="_blank" rel="noopener">FAA ↗</a></p></div></div><div class="altitude-bar"><span class="low-alt">0–500 ft AGL <b>~70%</b></span><span class="high-alt">Trên 500 ft <b>~30%</b></span></div><p class="altitude-context" id="altitude-context"></p><p class="fine-print">Thống kê nhiều loài chim; không phải xác suất va chạm của lượt bay này. Trên 500 ft vẫn có thể xảy ra va chạm.</p></section>
+      </section>
+      <aside class="controls" aria-label="Thiết lập thí nghiệm">
+        <div class="controls-title"><h2>Thiết lập thí nghiệm</h2><span>01—06</span></div>
+        <label class="field-label" for="preset">Kịch bản</label><select id="preset" class="wide"><option value="landing">Hạ cánh · giao cắt tâm dự kiến</option><option value="takeoff">Cất cánh · giao cắt tâm dự kiến</option><option value="centerControl">Đối chứng · tâm không đổi vận tốc</option><option value="signals">Thử giả thuyết âm + đèn</option><option value="falcon">Chim cắt robot · gặp máy bay</option><option value="headon">Đối đầu · bay ngang</option><option value="late">Phát hiện muộn</option><option value="crossing">Đàn chim cắt ngang</option><option value="separated">Khác độ cao · 700 / 300 ft</option><option value="custom" hidden>Tùy chỉnh</option></select>
+        <p class="control-hint">Đổi tham số sẽ bắt đầu một lượt mới với cùng hạt giống ngẫu nhiên.</p>
+        <details open class="control-section"><summary><span><b>01</b> Tiếp cận & phát hiện</span><span class="expand-symbol">+</span></summary>
+          <div class="slider-field"><div><label for="detection">Ngưỡng phát hiện <span class="assumed" title="Tham số giả định, chưa được hiệu chuẩn cho máy bay">GĐ</span></label><output for="detection" id="detection-out"></output></div><input id="detection" type="range" min="0" max="800" step="5"><div class="range-ends"><span>0 m · tắt phát hiện</span><span>800 m</span></div></div>
+          <div class="slider-field"><div><label for="latency">Độ trễ bắt đầu né <span class="assumed">GĐ</span></label><output for="latency" id="latency-out"></output></div><input id="latency" type="range" min="0" max="3" step="0.05"></div>
+          <div class="estimate"><span>Thời gian danh định trong ngưỡng</span><strong id="available-time">—</strong><small id="available-note">Khoảng cách / tốc độ tương đối</small></div>
+          <div class="slider-field"><div><label for="distance">Cách nhau ban đầu theo trục bay</label><output for="distance" id="distance-out"></output></div><input id="distance" type="range" min="850" max="1800" step="50"></div>
+        </details>
+        <details open class="control-section"><summary><span><b>02</b> Máy bay & độ cao</span><span class="expand-symbol">+</span></summary>
+          <label class="field-label" for="phase">Pha bay</label><select id="phase" class="wide"><option value="landing">Hạ cánh · tiếp cận cuối</option><option value="takeoff">Cất cánh · sau nhấc bánh</option><option value="level">Bay ngang</option><option value="custom">Lên / xuống thủ công</option></select>
+          <div class="slider-field"><div><label for="flightAngle">Góc đường bay</label><output for="flightAngle" id="flightAngle-out"></output></div><input id="flightAngle" type="range" min="1" max="6" step="0.5"></div><p class="control-hint" id="phase-note"></p>
+          <label class="check-field"><input id="centerLock" type="checkbox" checked><span>Khóa giao cắt tâm dự kiến<small>Căn cao độ và lệch ngang ban đầu để hai quỹ đạo CV gặp đúng một điểm.</small></span></label>
+          <p class="aircraft-spec">Kích thước tham chiếu A320 <a href="#sources" aria-label="Nguồn kích thước A320">[4]</a><span>Dài 37,57 m · sải cánh 35,80 m</span></p>
+          <div class="slider-field"><div><label for="speed">Tốc độ mặt đất <span class="assumed">GĐ</span></label><output for="speed" id="speed-out"></output></div><input id="speed" type="range" min="60" max="250" step="5"></div>
+          <div class="slider-field"><div><label for="aircraftAlt">Độ cao máy bay ban đầu</label><output for="aircraftAlt" id="aircraftAlt-out"></output></div><input id="aircraftAlt" type="range" min="30" max="3000" step="10"></div>
+          <div class="slider-field"><div><label for="birdAlt">Độ cao tâm đàn chim</label><output for="birdAlt" id="birdAlt-out"></output></div><input id="birdAlt" type="range" min="20" max="1500" step="10"></div>
+          <div id="manual-rate"><label class="field-label" for="verticalRate">Vận tốc đứng thủ công</label><select id="verticalRate" class="wide"><option value="0">0 m/s</option><option value="-3">−3 m/s</option><option value="3">+3 m/s</option></select></div>
+        </details>
+        <details class="control-section"><summary><span><b>03</b> Đàn chim & tránh né</span><span class="expand-symbol">+</span></summary>
+          <div class="slider-field"><div><label for="count">Số bồ câu</label><output for="count" id="count-out"></output></div><input id="count" type="range" min="1" max="100" step="1"></div>
+          <div class="slider-field"><div><label for="birdSpeed">Tốc độ nền chim <span class="evidence-tag">HoPE</span></label><output for="birdSpeed" id="birdSpeed-out"></output></div><input id="birdSpeed" type="range" min="8" max="26" step="1"></div>
+          <label class="field-label" for="heading">Hướng bay đàn chim</label><select id="heading" class="wide"><option value="headon">Ngược hướng máy bay</option><option value="crossing">Cắt ngang 90°</option><option value="following">Cùng hướng máy bay</option></select>
+          <div class="slider-field"><div><label for="offset">Lệch ngang tại điểm gặp</label><output for="offset" id="offset-out"></output></div><input id="offset" type="range" min="-200" max="200" step="5"></div>
+          <label class="field-label" for="escape">Quy tắc tránh né <span class="assumed">GĐ</span></label><select id="escape" class="wide"><option value="heading">Rẽ khỏi hướng đối tượng tiếp cận</option><option value="split">Tách hai bên trục máy bay</option><option value="together">Cùng rẽ về +Y</option><option value="dive">Hạ thấp & rẽ nhẹ</option></select>
+          <div class="slider-field"><div><label for="accel">Gia tốc đổi hướng tối đa <span class="assumed">GĐ</span></label><output for="accel" id="accel-out"></output></div><input id="accel" type="range" min="3" max="20" step="1"></div>
+          <label class="check-field"><input id="social" type="checkbox" checked><span>Lan truyền phản ứng trong đàn<small>Quan sát chim lân cận sau 0,15 s (giả định)</small></span></label>
+          <label class="check-field"><input id="predator" type="checkbox"><span>Thêm chim cắt robot<small>Đuổi chim gần nhất; tác động trong 50 m, tốc độ 1,5× tốc độ nền. Tham số phỏng theo HoPE, không phải bảo đảm xua đuổi.</small></span></label>
+          <label class="check-field"><input id="ballistic" type="checkbox"><span>Đối chứng: giữ vận tốc từng chim<small>Tắt đổi hướng và phản ứng; dùng kiểm tra giao cắt hình học, không đại diện hành vi tự nhiên.</small></span></label>
+        </details>
+        <details class="control-section"><summary><span><b>04</b> Âm thanh & ánh sáng</span><span class="expand-symbol">+</span></summary>
+          <label class="check-field"><input id="soundOn" type="checkbox"><span>Nguồn âm đơn trên máy bay<small>Giả lập một dải tần; không phải bản ghi tiếng chim săn mồi.</small></span></label>
+          <label class="field-label" for="soundHz">Tần số nguồn âm</label><select id="soundHz" class="wide"><option value="100">100 Hz</option><option value="1000">1.000 Hz</option><option value="2000">2.000 Hz</option><option value="4000">4.000 Hz</option><option value="6400">6.400 Hz</option><option value="20000">20.000 Hz · ngoài dữ liệu tham chiếu</option></select>
+          <div class="slider-field"><div><label for="soundLevel">Mức nguồn tại 1 m <span class="assumed">GĐ</span></label><output id="soundLevel-out" for="soundLevel"></output></div><input id="soundLevel" type="range" min="60" max="130" step="1"></div>
+          <div class="slider-field"><div><label for="noiseLevel">Nền âm cùng dải tần <span class="assumed">GĐ</span></label><output id="noiseLevel-out" for="noiseLevel"></output></div><input id="noiseLevel" type="range" min="0" max="90" step="1"></div>
+          <div class="slider-field"><div><label for="snrMargin">Biên so với nền <span class="assumed">GĐ</span></label><output id="snrMargin-out" for="snrMargin"></output></div><input id="snrMargin" type="range" min="0" max="20" step="1"></div>
+          <button class="secondary wide" id="sound-preview">Nghe âm mẫu · 0,4 s</button><p class="control-hint">Âm lượng loa không tương ứng với dB trong mô hình.</p>
+          <label class="check-field"><input id="lightOn" type="checkbox"><span>Nguồn sáng trên máy bay<small>Mô phỏng năng lượng nhận được; màu màn hình chỉ minh họa.</small></span></label>
+          <label class="field-label" for="lightNm">Bước sóng</label><select id="lightNm" class="wide"><option value="380">380 nm · gần UV</option><option value="470">470 nm · xanh lam</option><option value="525">525 nm · xanh lục</option><option value="630">630 nm · đỏ</option></select>
+          <div class="slider-field"><div><label for="lightIntensity">Cường độ bức xạ <span class="assumed">GĐ</span></label><output id="lightIntensity-out" for="lightIntensity"></output></div><input id="lightIntensity" type="range" min="1" max="1000" step="1"></div>
+          <div class="slider-field"><div><label for="lightPulse">Nhịp chớp <span class="assumed">GĐ</span></label><output id="lightPulse-out" for="lightPulse"></output></div><input id="lightPulse" type="range" min="0" max="10" step="0.5"></div>
+          <div class="slider-field"><div><label for="lightThreshold">Mốc phản ứng giả định <span class="assumed">GĐ</span></label><output id="lightThreshold-out" for="lightThreshold"></output></div><input id="lightThreshold" type="range" min="0.1" max="10" step="0.1"></div>
+          <label class="check-field hypothesis-field"><input id="signalResponse" type="checkbox"><span>Thử giả thuyết: vượt mốc tín hiệu → né<small>Chưa có hàm đã kiểm chứng cho bồ câu. Bỏ chọn để đo tín hiệu mà không thay hành vi.</small></span></label>
+        </details>
+        <details class="control-section"><summary><span><b>05</b> Dự báo chuyển động</span><span class="expand-symbol">+</span></summary><div class="slider-field"><div><label for="horizon">Chân trời dự báo CV</label><output id="horizon-out" for="horizon"></output></div><input id="horizon" type="range" min="0.5" max="5" step="0.5"></div><p class="control-hint">Dự báo p(t+H) = p(t) + v(t)H. RMSE chỉ đo sai số trên lượt mô phỏng này, loại chim đã giao cắt. Chưa phải độ chính xác trên dữ liệu GPS thực.</p></details>
+        <details class="control-section"><summary><span><b>06</b> Tái lập & dữ liệu</span><span class="expand-symbol">+</span></summary><label class="field-label" for="seed">Hạt giống ngẫu nhiên</label><div class="seed-row"><input type="number" id="seed" min="1" max="999999" step="1" value="42"><button class="quiet" id="new-seed">Đổi hạt</button></div><p class="control-hint">Cùng tham số và hạt giống tạo cùng kết quả. Khác biệt cá thể: ngưỡng phát hiện và độ trễ ±15%.</p><button class="secondary wide" id="export">Xuất dữ liệu từng chim · CSV ↓</button><button class="secondary wide trace-button" id="export-json">Xuất diễn biến & sự kiện · JSON ↓</button></details>
+        <div class="assumption-note"><span>GĐ = GIẢ ĐỊNH KHẢO SÁT</span><p>Chưa hiệu chuẩn bằng thí nghiệm bồ câu gặp máy bay dân dụng. Dùng để khảo sát cơ chế, không dự báo xác suất tai nạn.</p></div>
+      </aside>
+    </div>
+    <section class="research" id="sources"><div class="section-heading"><div><div class="eyebrow">DỮ LIỆU & GIỚI HẠN</div><h2>Mô hình dựa vào điều gì?</h2></div><span class="source-date">Đối chiếu nguồn · 23.09.2026</span></div>
+      <div class="research-grid"><article><div class="source-label">01 / FAA · DỮ LIỆU QUAN SÁT</div><h3>Độ cao & mùa xuất hiện</h3><p>Khoảng 70% vụ bird strike ở 0–500 ft AGL; khoảng 54% vào tháng 7–10. Đây là thống kê gộp nhiều loài, không phải hệ số rủi ro riêng cho bồ câu.</p><a href="https://www.faa.gov/airports/airport_safety/wildlife/faq" target="_blank" rel="noopener">FAA Wildlife FAQ · cập nhật 02.09.2026 ↗</a></article>
+      <article><div class="source-label">02 / DEVAULT ET AL. · 2017</div><h3>Nhận biết chưa chắc tránh kịp</h3><p>Thí nghiệm bồ câu với video xe tiếp cận ở 120 hoặc 240 km/h cho thấy phản ứng có thể không đủ để tránh giao cắt. Không chuyển kết quả này thành khoảng cách phát hiện máy bay.</p><a href="https://digitalcommons.unl.edu/icwdm_usdanwrc/1876/" target="_blank" rel="noopener">Can experience reduce collisions… ↗</a></article>
+      <article><div class="source-label">03 / PAPADOPOULOU ET AL. · 2022</div><h3>Đàn chim tự phối hợp</h3><p>Nghiên cứu bồ câu gặp chim cắt robot hỗ trợ cách mô hình hóa bằng các cá thể điều chỉnh hướng, giữ đàn và tránh nhau. Bản này là mô hình 3D đơn giản tự xây dựng, không tái tạo HoPE.</p><a href="https://doi.org/10.1371/journal.pcbi.1009772" target="_blank" rel="noopener">Self-organization of collective escape… ↗</a></article>
+      <article><div class="source-label">04 / AIRBUS · HÌNH HỌC THAM CHIẾU</div><h3>Một máy bay thân hẹp</h3><p>Dùng chiều dài 37,57 m và sải cánh 35,80 m của A320 có sharklet. Thân, cánh, động cơ và đuôi được thay bằng khối hộp. Tốc độ và cao độ là kịch bản do bạn chọn.</p><a href="https://www.aircraft.airbus.com/sites/g/files/jlcbta126/files/2025-01/AC_A320_0624.pdf" target="_blank" rel="noopener">A320 Aircraft Characteristics · 06/2024 ↗</a></article></div>
+      <div class="evidence-table-wrap"><table class="evidence-table"><caption>Dữ liệu nào đi vào phiên bản 2?</caption><thead><tr><th>Thành phần</th><th>Căn cứ</th><th>Cách dùng & mức chắc chắn</th></tr></thead><tbody>
+        <tr><th>Nghe âm</th><td><a href="https://doi.org/10.3758/s13428-012-0269-y" target="_blank" rel="noopener">Heffner et al., 2013 ↗</a><br>Bồ câu nhà: khoảng 54–6.400 Hz tại 60 dB SPL; nhạy nhất khoảng 14 dB SPL trong 1–4 kHz.</td><td>Dùng hai mốc tham chiếu, không dựng đường ngưỡng chi tiết. Áp dụng cho tần số tới chim sau Doppler; nghe được chưa đồng nghĩa sợ.</td></tr>
+        <tr><th>Hiệu quả xua đuổi</th><td><a href="https://digitalcommons.unl.edu/vpcthirteen/54/" target="_blank" rel="noopener">Woronecki / USDA, 1988 ↗</a><br>Thử thiết bị siêu âm, âm thanh và thị giác với bồ câu trong tòa nhà.</td><td>Không ghi nhận giảm số lượng bền vững; siêu âm không hiệu quả trong thử nghiệm này. Không gán hiệu quả né 100% cho thiết bị.</td></tr>
+        <tr><th>Ánh sáng & phản ứng</th><td><a href="https://doi.org/10.1098/rsos.190677" target="_blank" rel="noopener">Nebel et al., 2019 ↗</a><br>Bồ câu phản ứng chậm hơn với mô hình diều hâu trong điều kiện tối hơn.</td><td>Giữ kết luận định tính. Không suy thành ngưỡng phản ứng với đèn máy bay hoặc một độ trễ cố định.</td></tr>
+        <tr><th>Màu đèn</th><td><a href="https://pubmed.ncbi.nlm.nih.gov/30280013/" target="_blank" rel="noopener">Nghiên cứu đèn tương phản, 2018 ↗</a><br>Tránh đèn 470 và 630 nm được thử trên brown-headed cowbird.</td><td>Đó là loài khác. Ở đây bước sóng chỉ tính năng lượng photon; không chuyển hiệu quả sang bồ câu.</td></tr>
+        <tr><th>Bay đàn & chim cắt</th><td><a href="https://doi.org/10.1371/journal.pcbi.1009772" target="_blank" rel="noopener">HoPE / Papadopoulou et al., 2022 ↗</a><br>Tham số mô hình: 16 m/s, 7 láng giềng, tách 1 m, cửa sổ 215°; chim cắt tấn công 1,5×, tác động 50 m.</td><td>Tham chiếu mô hình đã công bố; không phải các hằng số sinh học. Lực, độ trễ và phần 3D ở đây là bản đơn giản hóa riêng.</td></tr>
+        <tr><th>Góc hạ cánh</th><td><a href="https://www.faa.gov/air_traffic/publications/atpubs/aim_html/chap1_section_1.html" target="_blank" rel="noopener">FAA AIM · ILS ↗</a><br>Đường lượn ILS thông thường 3°.</td><td>Dùng làm mặc định hạ cánh. Góc leo và tốc độ do người dùng chọn, chưa phải đường bay khai thác của một chuyến A320.</td></tr>
+        <tr><th>Truyền âm / ánh sáng</th><td><a href="https://www.osha.gov/otm/section-3-health-hazards/chapter-5" target="_blank" rel="noopener">OSHA · nguồn âm điểm ↗</a><br>Âm giảm khoảng 6 dB khi gấp đôi khoảng cách trong trường tự do. Ánh sáng dùng quan hệ nghịch đảo bình phương.</td><td>Các phương trình vật lý lý tưởng. Chưa tính che khuất, phản xạ, hấp thụ, định hướng phát hay phổ động cơ thực.</td></tr>
+        <tr><th>Phát hiện máy bay & dự báo</th><td>Chưa có dữ liệu hiệu chuẩn tương ứng trong các nguồn trên.</td><td>220 m, 0,6 s, giới hạn gia tốc, nền âm, ngưỡng sáng và dự báo CV là giả định công khai. RMSE chỉ kiểm tra trên quỹ đạo mô phỏng.</td></tr>
+      </tbody></table></div>
+      <div class="research-foot"><p><b>Khoảng trống dữ liệu:</b> nghiên cứu máy bay tại sân bay của Blackwell et al. (2019) phân tích chính 5 loài, trong đó có mourning dove (<i>Zenaida macroura</i>), không phải rock pigeon (<i>Columba livia</i>). Vì vậy không dùng chúng để gán một ngưỡng phản ứng cố định cho bồ câu. <a href="https://doi.org/10.1002/jwmg.21650" target="_blank" rel="noopener">Đọc nghiên cứu [5] ↗</a></p><button class="quiet" id="open-method-bottom">Xem phương trình & giả định ↗</button></div>
+    </section>
+  </main>
+  <footer><span>PIGEON / FLIGHT LAB</span><span>Mô phỏng nghiên cứu · hoạt động hoàn toàn trên thiết bị · không thu thập dữ liệu</span></footer>
+  <dialog id="method-dialog"><div class="dialog-heading"><div><span class="eyebrow">MODEL NOTES / v2.0</span><h2>Cơ chế & cách đọc kết quả</h2></div><button class="icon-button" id="close-method" aria-label="Đóng cơ sở mô hình">×</button></div><div class="dialog-body">
+    <h3>1. Nhận biết → chờ → đổi hướng</h3><p>Mỗi chim có vị trí và vận tốc trong không gian 3D. Bản 1 chỉ kích hoạt né bằng bán kính phát hiện máy bay và cảnh báo qua đàn; chưa có âm thanh hay ánh sáng. Bản 2 thêm tín hiệu cảm giác và tác tử chim cắt. Kênh kích hoạt đầu tiên được ghi lại; sau độ trễ đã chọn, chim bắt đầu đổi hướng. Ngưỡng phát hiện và độ trễ từng con phân bố đều ±15% quanh giá trị bạn nhập.</p><p><code>t_còn lại ≈ D / |v_máy_bay − v_chim|</code> chỉ là ước lượng cho quỹ đạo gặp nhau. Bảng chính tính điểm cận tiếp bằng vận tốc tương đối: <code>t_CPA = max(0, −r·v / |v|²)</code>. CPA giả định vận tốc không đổi, nên sẽ thay đổi khi chim rẽ.</p>
+    <h3>2. Tương tác bầy đàn</h3><p>Tham số tham chiếu HoPE: tốc độ nền 16 m/s, tốc độ ưa thích phân bố ±2 m/s, tối đa 7 láng giềng trong cửa sổ tương tác ngang 215°, và tách khỏi láng giềng gần nhất trong 1 m. 215° là cửa sổ tương tác của mô hình, không phải toàn bộ trường nhìn giải phẫu. Bản này dùng gia tốc 3D đơn giản, không tái lập đầy đủ HoPE.</p><p>Hướng né được chọn tương đối với hướng bay của đối tượng phát động phản ứng. Đổi hướng đàn là kết quả của tương tác; không có quy tắc sinh học rằng mọi chim luôn rẽ trái, phải hoặc lao xuống. Chế độ hạ thấp là giả thuyết khảo sát. Độ trễ 0,6 s, phát hiện máy bay 220 m, gia tốc 12 m/s² và truyền cảnh báo 0,15 s vẫn là giả định.</p>
+    <h3>3. Giao cắt hình học</h3><p>Máy bay bay thẳng theo vận tốc đã chọn. Sáu khối hộp đại diện thân, cánh, đuôi và hai động cơ; các khối được nới 0,18 m trên mỗi mặt để đại diện kích thước chim. Đường chuyển động tương đối được quét liên tục qua các hộp ở mỗi bước 1/60 s, tránh bỏ sót khi vật thể bay nhanh. Các khối không xoay theo góc leo/hạ.</p><p>“Giao cắt” đếm cá thể có đường đi chạm khối, không dự báo thương tích hoặc hư hại. “Cận tiếp” là khoảng cách nhỏ nhất tới tập khối đã nới trong toàn lượt; ≤10 m là mức theo dõi do mô hình chọn, không phải tiêu chuẩn phân cách hàng không. Chim đã giao cắt được loại khỏi tương tác tiếp theo.</p>
+    <h3>4. Cắt tâm và pha cất/hạ cánh</h3><p>Khi khóa tâm, mô hình căn vị trí ban đầu theo <code>p_máy_bay(0) + v_máy_bay T = p_tâm(0) + v_tâm(0) T</code>. Sai lệch danh định bằng 0 với vận tốc không đổi. Đây là tính chắc chắn của cấu hình toán học, không phải dự báo va chạm thực tế 100%. Tâm không nhất thiết chứa một con chim. Các chim né và cả tâm đàn có thể rời điểm hẹn.</p><p>Vận tốc đứng <code>v_z = ±v_mặt_đất tan(γ)</code>. Góc hạ 3° tham chiếu ILS của FAA; góc lấy độ cao do người dùng giả định. Chỉ mô phỏng đoạn đã nhấc bánh hoặc tiếp cận cuối, chưa tính chạy đà, flare hay chạm bánh. Cấu hình khiến máy bay bắt đầu dưới đất sẽ bị chặn. AGL tính từ mặt đất; 1 ft = 0,3048 m.</p>
+    <h3>5. Âm thanh và ánh sáng</h3><p>Nguồn âm điểm di chuyển cùng máy bay: <code>L(r) = L(1 m) − 20 log₁₀(r)</code>. Có độ trễ truyền âm và Doppler nguồn/đích; giả định không khí đứng yên, tốc độ âm 343 m/s. Chưa tính hấp thụ khí quyển, che khuất hay phản xạ, nên không coi kết quả là tầm hoạt động thiết bị.</p><p>Mốc nghe từ Heffner: xấp xỉ 14 dB SPL ở 1–4 kHz; trong 54–6.400 Hz dùng mốc bảo thủ 60 dB SPL. Không nội suy một audiogram chưa đo. Ngoài miền đó trả về “chưa kết luận”. Mốc sàng lọc là giá trị lớn hơn giữa mốc nghiên cứu và nền âm cộng biên do người dùng đặt. Biên nền âm không phải dữ liệu che lấp âm đã hiệu chuẩn cho bồ câu.</p><p>Nguồn sáng: <code>E = I/r²</code>, công suất bức xạ theo μW/m²; dòng photon tính từ bước sóng. Nhịp chớp dùng duty cycle 50%, 0 Hz là sáng liên tục. Không dùng lux của người làm độ nhạy võng mạc chim. Bước sóng chưa được ánh xạ sang mức sợ; ngưỡng ánh sáng là giả định. Chưa có mô hình nhận dạng tiếng/hình loài săn mồi từ tín hiệu đơn tần hoặc màu đèn.</p><p>Chế độ “đo tín hiệu” không đổi hành vi. Chế độ “giả thuyết” cho bắt đầu chờ né khi vượt mốc; đây là quy tắc thử nghiệm, không phải hiệu quả xua đuổi đã chứng minh. Chim cắt robot là tác tử riêng, đuổi chim gần nhất với tốc độ 1,5× tốc độ nền và phạm vi tác động 50 m; không mô phỏng va chạm robot–máy bay hay robot bắt chim.</p>
+    <h3>6. Dự báo chuyển động</h3><p>Dự báo ngắn hạn CV giữ vận tốc hiện tại. Vòng biên có bán kính <code>½ a_max H²</code>, áp dụng cho nhóm cá thể hiện tại khi còn bay và không chạm sàn; không bao gồm thay đổi thành viên sau giao cắt. Đây là biên động học theo giả định gia tốc, không phải khoảng tin cậy hay xác suất.</p><p>Cứ 0,2 s lưu dự báo cho từng chim; sau H giây so với vị trí mô phỏng và tích lũy RMSE, bỏ cá thể đã giao cắt. Lỗi này kiểm tra dự báo trong thế giới mô phỏng, không chứng minh độ chính xác ngoài tự nhiên. Thay đổi hướng né, giác quan hoặc hạt giống có thể làm sai số đổi mạnh.</p>
+    <h3>7. Tái lập và giới hạn</h3><p>CSV chứa một dòng/chim, tham số, kênh tín hiệu, hướng né và kết quả. Cùng hạt giống và tham số cho cùng kết quả. Tốc độ phát không đổi bước vật lý 1/60 s. Chưa tính gió, khí động, luồng hút, wake turbulence hay phản ứng phi công. Tốc độ tối đa 28 m/s, tốc độ đứng 5 m/s và sàn 2 m là giới hạn giả định. Thống kê FAA không làm thay đổi lực né và không tự nhân hệ số theo mùa.</p>
+    <div class="dialog-callout">Đây là công cụ khảo sát giả thuyết. Kết quả một lượt và tỉ lệ chim giao cắt không phải xác suất bird strike thực tế hay cơ sở điều hành chuyến bay.</div>
+  </div></dialog>
+  <div class="toast" id="toast" role="status"></div>
+  <script type="module">// All levels are virtual. SPL is unweighted, in the signal band, not dBA.
+const SOUND_SPEED=343; // m/s, assumed still air near 20 C.
+const sDot=(a,b)=>a.reduce((s,x,i)=>s+x*b[i],0);
+const sNorm=a=>Math.hypot(...a);
+function hearingReference(frequency){
+  // Heffner et al. 2013: ~14 dB best sensitivity at 1–4 kHz;
+  // mean audiogram bounded by 54–6400 Hz at 60 dB SPL.
+  // We do NOT invent an interpolated full audiogram.
+  if(frequency>=1000&&frequency<=4000)return {threshold:14,kind:'best-band',note:'Mốc xấp xỉ 14 dB SPL · 1–4 kHz'};
+  if(frequency>=54&&frequency<=6400)return {threshold:60,kind:'conservative',note:'Mốc sàng lọc bảo thủ 60 dB SPL · không phải ngưỡng nghe thực tại mọi tần số'};
+  return {threshold:null,kind:'unknown',note:'Ngoài miền tham chiếu đã dùng; không suy ra không nghe được'};
+}
+function receivedSound(sourcePos,sourceVel,receiverPos,receiverVel,time,p){
+  const r=receiverPos.map((x,i)=>x-sourcePos[i]);
+  const c=SOUND_SPEED,A=c*c-sDot(sourceVel,sourceVel),B=sDot(r,sourceVel);
+  const delay=(B+Math.sqrt(B*B+A*sDot(r,r)))/A;
+  const path=r.map((x,i)=>x+sourceVel[i]*delay),range=Math.max(1,sNorm(path));
+  const n=path.map(x=>x/(sNorm(path)||1));
+  const frequency=p.soundHz*(c-sDot(receiverVel,n))/(c-sDot(sourceVel,n));
+  const spl=p.soundLevel-20*Math.log10(range);
+  const reference=hearingReference(frequency),criterion=reference.threshold===null?null:Math.max(reference.threshold,p.noiseLevel+p.snrMargin);
+  const arrived=time+1e-9>=delay;
+  return {delay,range,frequency,spl,reference,criterion,arrived,aboveCriterion:!!p.soundOn&&arrived&&criterion!==null&&spl>=criterion};
+}
+function receivedLight(sourcePos,receiverPos,time,p){
+  const range=Math.max(1,sNorm(receiverPos.map((x,i)=>x-sourcePos[i])));
+  const on=p.lightPulse===0||(time*p.lightPulse)%1<.5;
+  // Radiant intensity (mW/sr) / r² = irradiance (mW/m²), converted to µW/m².
+  const peak=p.lightIntensity*1000/(range*range),instant=on?peak:0;
+  const average=peak*(p.lightPulse===0?1:.5);
+  const photonFlux=instant*1e-6*(p.lightNm*1e-9)/(6.62607015e-34*299792458);
+  return {range,peak,instant,average,on,photonFlux,aboveCriterion:!!p.lightOn&&instant>=p.lightThreshold};
+}
+
+// Exploratory agent model. SI internally; no empirical aircraft detection calibration.
+const FT = 0.3048, KT = 1852/3600, DT = 1/60;
+const DEFAULTS = Object.freeze({count:36,speed:140,aircraftAlt:300,birdAlt:300,detection:220,latency:0.6,birdSpeed:16,accel:12,offset:0,distance:900,heading:'headon',escape:'heading',verticalRate:0,social:true,seed:42,phase:'landing',flightAngle:3,centerLock:true,ballistic:false,predator:false,soundOn:false,soundHz:2000,soundLevel:100,noiseLevel:40,snrMargin:6,lightOn:false,lightNm:470,lightPulse:2,lightIntensity:100,lightThreshold:1,signalResponse:false,horizon:2});
+const PRESETS = {
+  landing:{...DEFAULTS},
+  takeoff:{...DEFAULTS,phase:'takeoff'},
+  centerControl:{...DEFAULTS,ballistic:true,detection:0,social:false},
+  signals:{...DEFAULTS,soundOn:true,lightOn:true,signalResponse:true},
+  falcon:{...DEFAULTS,predator:true},
+  headon:{...DEFAULTS,phase:'level'},
+  late:{...DEFAULTS,detection:45,latency:0.9},
+  crossing:{...DEFAULTS,heading:'crossing',detection:200},
+  separated:{...DEFAULTS,centerLock:false,aircraftAlt:700,birdAlt:300,phase:'level'}
+};
+// Conservative block geometry; only overall length/span reference Airbus A320.
+const BOXES = [
+  {name:'Thân',min:[-18.785,-2.1,-2.1],max:[18.785,2.1,2.1]},
+  {name:'Cánh',min:[-5,-17.9,-0.55],max:[2,17.9,0.55]},
+  {name:'Đuôi ngang',min:[-16,-6.2,-0.8],max:[-12,6.2,0.8]},
+  {name:'Đuôi đứng',min:[-16,-0.5,0],max:[-11,0.5,8]},
+  {name:'Động cơ trái',min:[-4,-6.2,-2.5],max:[1,-4,-0.6]},
+  {name:'Động cơ phải',min:[-4,4,-2.5],max:[1,6.2,-0.6]}
+];
+const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
+const add=(a,b)=>a.map((x,i)=>x+b[i]);
+const sub=(a,b)=>a.map((x,i)=>x-b[i]);
+const mul=(a,s)=>a.map(x=>x*s);
+const dot=(a,b)=>a.reduce((s,x,i)=>s+x*b[i],0);
+const length=a=>Math.hypot(...a);
+const unit=a=>mul(a,1/(length(a)||1));
+function random(seed){let a=seed>>>0;return()=>{a+=0x6D2B79F5;let t=a;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296;};}
+function sanitize(input={}){
+  const p={...DEFAULTS,...input};
+  for(const [key,min,max] of [['count',1,100],['speed',60,250],['aircraftAlt',30,3000],['birdAlt',20,1500],['detection',0,800],['latency',0,3],['birdSpeed',8,26],['accel',3,20],['offset',-200,200],['distance',850,1800],['verticalRate',-6,6],['seed',1,999999],['flightAngle',1,6],['soundHz',20,24000],['soundLevel',60,130],['noiseLevel',0,90],['snrMargin',0,20],['lightNm',350,700],['lightPulse',0,10],['lightIntensity',1,1000],['lightThreshold',.1,10],['horizon',.5,5]]){
+    if(!Number.isFinite(Number(p[key])))throw new TypeError(`Giá trị không hợp lệ: ${key}`);
+    p[key]=clamp(Number(p[key]),min,max);
+  }
+  p.count=Math.round(p.count);p.seed=Math.round(p.seed);
+  if(!['headon','crossing','following'].includes(p.heading))throw new TypeError('Hướng bay không hợp lệ');
+  if(!['heading','split','together','dive'].includes(p.escape))throw new TypeError('Cách tránh né không hợp lệ');
+  if(!['landing','takeoff','level','custom'].includes(p.phase))throw new TypeError('Pha bay không hợp lệ');
+  for(const key of ['social','centerLock','ballistic','predator','soundOn','lightOn','signalResponse'])p[key]=!!p[key];
+  return p;
+}
+function aircraftVelocity(p){return [p.speed*KT,0,p.phase==='custom'?p.verticalRate:p.phase==='level'?0:(p.phase==='takeoff'?1:-1)*p.speed*KT*Math.tan(p.flightAngle*Math.PI/180)];}
+// Exact minimum Euclidean distance from a swept point to an AABB.
+function segmentBox(a,b,min,max){
+  const d=sub(b,a), cuts=[0,1];
+  for(let i=0;i<3;i++)if(Math.abs(d[i])>1e-12)for(const edge of [min[i],max[i]]){const t=(edge-a[i])/d[i];if(t>0&&t<1)cuts.push(t);}
+  cuts.sort((x,y)=>x-y);
+  let best=Infinity,bestT=0;
+  const at=t=>{let q=0;for(let i=0;i<3;i++){const x=a[i]+d[i]*t;q+=Math.max(min[i]-x,0,x-max[i])**2;}if(q<best){best=q;bestT=t;}};
+  for(let j=0;j<cuts.length-1;j++){
+    const lo=cuts[j],hi=cuts[j+1],mid=(lo+hi)/2;let aa=0,bb=0;
+    for(let i=0;i<3;i++){const x=a[i]+d[i]*mid;const edge=x<min[i]?min[i]:x>max[i]?max[i]:null;if(edge!==null){aa+=d[i]*d[i];bb+=d[i]*(a[i]-edge);}}
+    at(lo);at(hi);if(aa>0)at(clamp(-bb/aa,lo,hi));
+  }
+  return {distance:Math.sqrt(best),t:bestT};
+}
+function closestApproach(r,v){const vv=dot(v,v);const t=vv>1e-12?Math.max(0,-dot(r,v)/vv):0;return {time:t,distance:length(add(r,mul(v,t))),approaching:dot(r,v)<0};}
+const CONTACT_BOXES=BOXES.map(b=>({...b,min:b.min.map(v=>v-.18),max:b.max.map(v=>v+.18)}));
+class Simulation {
+  constructor(params={}){
+    this.p=sanitize(params);const p=this.p,rng=random(p.seed);
+    this.t=0;this.stepCount=0;this.done=false;this.events=[];this.series=[];this.accumulator=0;
+    this.plane={pos:[-p.distance,0,p.aircraftAlt*FT],vel:aircraftVelocity(p)};
+    this.heading=p.heading==='headon'?[-1,0,0]:p.heading==='crossing'?[0,-1,0]:[1,0,0];
+    this.nominalTime=p.distance/(p.speed*KT-this.heading[0]*p.birdSpeed);
+    this.duration=this.nominalTime+8;
+    this.birds=Array.from({length:p.count},(_,i)=>{
+      const angle=rng()*Math.PI*2,rad=Math.sqrt(rng())*16;
+      const pos=[Math.cos(angle)*rad,Math.sin(angle)*rad+p.offset+(p.heading==='crossing'?p.birdSpeed*this.nominalTime:0),p.birdAlt*FT+(rng()-.5)*4];
+      const speed=p.birdSpeed+(rng()-.5)*4;
+      return {id:i+1,pos,vel:mul(this.heading,p.birdSpeed),speed,detection:p.detection*(.85+rng()*.3),delay:p.latency*(.85+rng()*.3),state:'cruise',alertAt:null,reactAt:Infinity,directAt:null,detectDistance:null,reactDistance:null,reactTime:null,contactTime:null,contactPart:null,socialAlert:false,side:rng()>.5?1:-1,minClearance:Infinity,trail:[pos.slice()],soundAt:null,lightAt:null,predatorAt:null,trigger:null,escapeVector:null,receivedSPL:null,receivedHz:null};
+    });
+    // Centre random positions exactly, and set a known mean initial velocity.
+    const rawCenter=mul(this.birds.reduce((a,b)=>add(a,b.pos),[0,0,0]),1/p.count);
+    const targetCenter=[0,p.centerLock?-this.heading[1]*p.birdSpeed*this.nominalTime:p.offset-this.heading[1]*p.birdSpeed*this.nominalTime,p.birdAlt*FT];
+    for(const bird of this.birds){bird.pos=add(sub(bird.pos,rawCenter),targetCenter);bird.trail=[bird.pos.slice()];}
+    this.initialCenter=targetCenter;this.initialMeanVelocity=mul(this.heading,p.birdSpeed);
+    if(p.centerLock)this.plane.pos[2]=targetCenter[2]-this.plane.vel[2]*this.nominalTime;
+    this.initialPlane=this.plane.pos.slice();
+    this.nominalPoint=add(this.initialCenter,mul(this.initialMeanVelocity,this.nominalTime));
+    this.nominalMiss=length(sub(this.nominalPoint,add(this.initialPlane,mul(this.plane.vel,this.nominalTime))));
+    this.validPlan=this.plane.pos[2]>=3&&Math.min(...this.birds.map(b=>b.pos[2]))>=2;
+    this.planNote=this.validPlan?'': 'Cấu hình không khả thi trên mặt đất: tăng độ cao đàn, giảm góc lấy độ cao hoặc bỏ khóa tâm.';
+    if(!this.validPlan){this.done=true;this.endReason=this.planNote;}
+    this.predator={pos:add(targetCenter,add(mul(this.heading,-35),[0,0,5])),vel:mul(this.heading,p.birdSpeed*1.5),trail:[]};
+    this.forecasts=[];this.predictionSSE=0;this.predictionN=0;
+    this.recordForecast();
+    this.measure();
+  }
+  referenceCenter(time){return add(this.initialCenter,mul(this.initialMeanVelocity,time));}
+  recordForecast(){this.forecasts.push({at:this.stepCount+Math.round(this.p.horizon/DT),birds:this.birds.filter(b=>b.state!=='contact').map(b=>({id:b.id,pos:add(b.pos,mul(b.vel,Math.round(this.p.horizon/DT)*DT))}))});}
+  evaluateForecasts(){
+    while(this.forecasts.length&&this.forecasts[0].at<=this.stepCount){const forecast=this.forecasts.shift();for(const point of forecast.birds){const b=this.birds[point.id-1];if(b.state==='contact')continue;this.predictionSSE+=length(sub(b.pos,point.pos))**2;this.predictionN++;}}
+    if(this.stepCount%12===0)this.recordForecast();
+  }
+  alert(b,source,d){if(b.alertAt!==null||this.p.ballistic)return;b.alertAt=this.t;b.reactAt=this.t+b.delay;b.state='alert';b.trigger=source;this.event(b,'alert',d,{source});}
+  threatFor(b){return b.trigger==='predator'?this.predator:this.plane;}
+  escapeTarget(b){
+    const threat=this.threatFor(b),h=unit([threat.vel[0],threat.vel[1],0]);
+    const normal=[-h[1],h[0],0];
+    const lateral=mul(normal,b.side);
+    if(this.p.escape==='dive')return unit(add(mul(lateral,.3),[0,0,-1]));
+    return unit(add(mul(this.heading,.25),this.p.escape==='heading'?lateral:[0,b.side,0]));
+  }
+  event(b,kind,d,extra={}){this.events.push({time:this.t,bird:b.id,kind,distance:d,...extra});}
+  measure(){
+    const live=this.birds.filter(b=>b.state!=='contact');
+    const birds=live.length?live:this.birds;
+    this.center=mul(birds.reduce((a,b)=>add(a,b.pos),[0,0,0]),1/birds.length);
+    this.meanVelocity=mul(birds.reduce((a,b)=>add(a,b.vel),[0,0,0]),1/birds.length);
+    this.predictedCenter=add(this.center,mul(this.meanVelocity,this.p.horizon));
+    this.predictionRadius=.5*this.p.accel*this.p.horizon**2;
+    this.centerCPA=live.length?closestApproach(sub(this.center,this.plane.pos),sub(this.meanVelocity,this.plane.vel)):null;
+    this.sound=receivedSound(this.plane.pos,this.plane.vel,this.center,this.meanVelocity,this.t,this.p);
+    this.light=receivedLight(this.plane.pos,this.center,this.t,this.p);
+    this.heard=this.birds.filter(b=>b.soundAt!==null).length;
+    this.lit=this.birds.filter(b=>b.lightAt!==null).length;
+    this.predatorAlerts=this.birds.filter(b=>b.predatorAt!==null).length;
+    this.directions={left:0,right:0,down:0};
+    for(const b of this.birds)if(b.escapeVector){if(b.escapeVector[1]>=0)this.directions.left++;else this.directions.right++;if(b.escapeVector[2]<-.25)this.directions.down++;}
+    this.predictionRMSE=this.predictionN?Math.sqrt(this.predictionSSE/this.predictionN):null;
+    this.centerDistance=length(sub(this.center,this.plane.pos));
+    this.nearestDistance=Math.min(...birds.map(b=>length(sub(b.pos,this.plane.pos))));
+    const reacted=this.birds.filter(b=>b.reactDistance!==null).map(b=>b.reactDistance).sort((a,b)=>a-b);
+    this.reactionMedian=reacted.length?(reacted[(reacted.length-1)>>1]+reacted[reacted.length>>1])/2:null;
+    this.detected=this.birds.filter(b=>b.directAt!==null).length;
+    this.warned=this.birds.filter(b=>b.alertAt!==null).length;
+    this.reacted=reacted.length;
+    this.contacts=this.birds.filter(b=>b.state==='contact').length;
+    this.near=this.birds.filter(b=>b.minClearance<=10).length;
+    this.clearance=Math.min(...this.birds.map(b=>b.minClearance));
+    this.cpa=live.map(b=>closestApproach(sub(b.pos,this.plane.pos),sub(b.vel,this.plane.vel))).filter(c=>c.approaching).sort((a,b)=>a.distance-b.distance)[0]||null;
+  }
+  step(){
+    if(this.done)return;
+    const dt=DT,p=this.p,prevPlane=this.plane.pos.slice();
+    const nextPlane=add(prevPlane,mul(this.plane.vel,dt));
+    // Ground ends the encounter instead of making an aircraft bounce or tunnel through it.
+    if(nextPlane[2]<3){this.done=true;this.endReason='Máy bay chạm giới hạn mặt đất của mô hình.';return;}
+    const live=this.birds.filter(b=>b.state!=='contact');
+    if(p.predator&&live.length){
+      const target=live.reduce((best,b)=>length(sub(b.pos,this.predator.pos))<length(sub(best.pos,this.predator.pos))?b:best,live[0]);
+      this.predator.vel=mul(unit(sub(target.pos,this.predator.pos)),p.birdSpeed*1.5);
+      this.predator.pos=add(this.predator.pos,mul(this.predator.vel,dt));
+      if(this.stepCount%6===0){this.predator.trail.push(this.predator.pos.slice());if(this.predator.trail.length>100)this.predator.trail.shift();}
+    }
+    const snapshots=live.map(b=>({b,pos:b.pos.slice(),vel:b.vel.slice(),state:b.state,reactTime:b.reactTime}));
+    for(const s of snapshots){
+      const b=s.b,r=sub(b.pos,prevPlane),d=length(r),rv=sub(b.vel,this.plane.vel);
+      const facing=unit([b.vel[0],b.vel[1],0]);
+      const neighbors=snapshots.filter(n=>n.b!==b).map(n=>({...n,d:length(sub(n.pos,b.pos))})).filter(n=>{const q=sub(n.pos,b.pos);return dot(facing,unit([q[0],q[1],0]))>=Math.cos(107.5*Math.PI/180);}).sort((a,c)=>a.d-c.d).slice(0,7);
+      const sound=receivedSound(prevPlane,this.plane.vel,b.pos,b.vel,this.t,p),light=receivedLight(prevPlane,b.pos,this.t,p);
+      if(sound.aboveCriterion&&b.soundAt===null){b.soundAt=this.t;b.receivedSPL=sound.spl;b.receivedHz=sound.frequency;this.event(b,'sound',d,{spl:sound.spl,frequency:sound.frequency});}
+      if(light.aboveCriterion&&b.lightAt===null){b.lightAt=this.t;this.event(b,'light',d,{irradiance:light.instant});}
+      if(p.signalResponse&&(sound.aboveCriterion||light.aboveCriterion))this.alert(b,sound.aboveCriterion?'sound':'light',d);
+      if(p.predator&&length(sub(b.pos,this.predator.pos))<=50){
+        if(b.predatorAt===null){b.predatorAt=this.t;this.event(b,'predator',d,{predatorDistance:length(sub(b.pos,this.predator.pos))});}
+        this.alert(b,'predator',d);
+      }
+      if(b.directAt===null&&p.detection>0&&d<=b.detection&&(dot(r,rv)<0||d<40)){
+        b.directAt=this.t;b.detectDistance=d;this.event(b,'detect',d);
+        this.alert(b,'aircraft',d);
+      }
+      if(p.social&&b.alertAt===null&&neighbors.some(n=>n.reactTime!==null&&this.t-n.reactTime>=.15)){
+        const neighbor=neighbors.find(n=>n.reactTime!==null&&this.t-n.reactTime>=.15);
+        b.socialAlert=true;this.alert(b,neighbor.b.trigger==='predator'?'predator':'social',d);this.event(b,'social',d);
+      }
+      if(b.state==='alert'&&this.t+1e-9>=b.reactAt){
+        b.state='escape';b.reactDistance=d;b.reactTime=this.t;
+        const threat=this.threatFor(b),hv=unit([threat.vel[0],threat.vel[1],0]),normal=[-hv[1],hv[0],0],across=p.escape==='split'?b.pos[1]:dot(sub(b.pos,threat.pos),normal);
+        b.side=p.escape==='together'?1:Math.abs(across)>.01?Math.sign(across):b.side;
+        b.escapeVector=this.escapeTarget(b);this.event(b,'react',d,{source:b.trigger,direction:b.escapeVector});
+      }
+      let force=[0,0,0];
+      if(neighbors.length){
+        const meanV=mul(neighbors.reduce((a,n)=>add(a,n.vel),[0,0,0]),1/neighbors.length);
+        const meanP=mul(neighbors.reduce((a,n)=>add(a,n.pos),[0,0,0]),1/neighbors.length);
+        force=add(mul(sub(meanV,b.vel),.8),mul(sub(meanP,b.pos),.08));
+        const n=neighbors[0];if(n&&n.d<1&&n.d>.001)force=add(force,mul(unit(sub(b.pos,n.pos)),(1-n.d)*6));
+      }
+      const target=b.state==='escape'?this.escapeTarget(b):this.heading;
+      const targetSpeed=b.state==='escape'?Math.min(28,b.speed+2):b.speed;
+      force=add(force,mul(sub(mul(target,targetSpeed),b.vel),b.state==='escape'?2:.5));
+      // Nominal altitude is maintained before escape; turn modes stay near it.
+      if(b.state!=='escape'||p.escape!=='dive')force[2]+=(p.birdAlt*FT-b.pos[2])*.6-b.vel[2]*1.2;
+      force=mul(force,Math.min(1,p.accel/(length(force)||1)));
+      let v=p.ballistic?b.vel.slice():add(b.vel,mul(force,dt));
+      v[2]=clamp(v[2],-5,5);
+      const n=length(v);if(n>28)v=mul(v,28/n);
+      let pos=add(b.pos,mul(add(b.vel,v),dt/2));if(pos[2]<2){pos[2]=2;v[2]=Math.max(0,v[2]);}
+      const a=sub(b.pos,prevPlane),c=sub(pos,nextPlane),cv=sub(c,a);
+      const tc=clamp(-dot(a,cv)/(dot(cv,cv)||1),0,1);
+      const lower=length(add(a,mul(cv,tc)))-28;
+      let hit=null;
+      if(lower<=Math.max(b.minClearance,10))for(const box of CONTACT_BOXES){
+        const result=segmentBox(a,c,box.min,box.max);
+        b.minClearance=Math.min(b.minClearance,result.distance);
+        if(result.distance<1e-9&&(!hit||result.t<hit.t))hit={...result,part:box.name};
+      }
+      if(hit){
+        b.state='contact';b.contactTime=this.t+hit.t*dt;b.contactPart=hit.part;
+        pos=add(b.pos,mul(sub(pos,b.pos),hit.t));
+        this.events.push({time:b.contactTime,bird:b.id,kind:'contact',distance:length(sub(pos,add(prevPlane,mul(this.plane.vel,hit.t*dt)))),part:hit.part});
+      }
+      b.pos=pos;b.vel=v;
+      if(this.stepCount%6===0){b.trail.push(pos.slice());if(b.trail.length>100)b.trail.shift();}
+    }
+    this.plane.pos=nextPlane;this.stepCount++;this.t=this.stepCount*DT;
+    this.evaluateForecasts();this.measure();
+    if(this.stepCount%12===0)this.series.push({t:this.t,plane:this.plane.pos.slice(),center:this.center.slice(),meanVelocity:this.meanVelocity.slice(),predictedCenter:this.predictedCenter.slice(),predictionRMSE:this.predictionRMSE,centerCPA:this.centerCPA,clearance:Number.isFinite(this.clearance)?this.clearance:null,centerDistance:this.centerDistance,detected:this.detected,reacted:this.reacted,heard:this.heard,lit:this.lit,contacts:this.contacts,soundSPL:this.p.soundOn&&this.sound.arrived?this.sound.spl:null,soundHz:this.sound.frequency,irradiance:this.p.lightOn?this.light.instant:null});
+    if(this.t>=this.duration){this.done=true;this.endReason='Đã kết thúc lượt mô phỏng.';}
+  }
+  advance(seconds){this.accumulator+=Math.max(0,seconds);while(this.accumulator+1e-9>=DT&&!this.done){this.step();this.accumulator-=DT;}}
+  finish(){while(!this.done)this.step();return this.summary();}
+  summary(){return {modelVersion:'2.0',parameters:{...this.p},validPlan:this.validPlan,time:this.t,finished:this.done,total:this.p.count,detected:this.detected,heard:this.heard,lit:this.lit,predatorAlerts:this.predatorAlerts,warned:this.warned,reacted:this.reacted,contacts:this.contacts,within10m:this.near,minClearance:Number.isFinite(this.clearance)?this.clearance:null,reactionMedian:this.reactionMedian,nominalTime:this.nominalTime,nominalMiss:this.validPlan?this.nominalMiss:null,initialAircraftAltitudeFt:this.initialPlane[2]/FT,predictionRMSE:this.predictionRMSE,predictionSamples:this.predictionN,firstDetection:this.events.find(e=>e.kind==='detect')||null,events:this.events};}
+}
+
+const $=id=>document.getElementById(id);
+const number=(x,d=0)=>Number(x).toLocaleString('vi-VN',{minimumFractionDigits:d,maximumFractionDigits:d});
+const rangeKeys=['count','speed','aircraftAlt','birdAlt','detection','latency','birdSpeed','accel','offset','distance','flightAngle','soundLevel','noiseLevel','snrMargin','lightIntensity','lightPulse','lightThreshold','horizon'];
+const numericSelects=['verticalRate','soundHz','lightNm'];
+const checkKeys=['social','centerLock','ballistic','predator','soundOn','lightOn','signalResponse'];
+const phaseNames={landing:'Hạ cánh',takeoff:'Cất cánh',level:'Bay ngang',custom:'Đứng thủ công'};
+const triggerNames={aircraft:'ngưỡng phát hiện máy bay',sound:'mốc âm thanh giả định',light:'mốc ánh sáng giả định',predator:'chim cắt robot',social:'cảnh báo từ chim lân cận'};
+let params={...DEFAULTS},sim=new Simulation(params),playing=false,calculating=false,lastFrame=0,uiElapsed=0,toastTimer;
+const colors={cruise:'#68d9d0',alert:'#f2bc66',escape:'#def48a',contact:'#f78092'};
+const formats={count:x=>`${x} con`,speed:x=>`${x} kt`,aircraftAlt:x=>`${number(x)} ft`,birdAlt:x=>`${number(x)} ft`,detection:x=>`${number(x)} m`,latency:x=>`${number(x,2)} s`,birdSpeed:x=>`${x} m/s`,accel:x=>`${x} m/s²`,offset:x=>`${x>0?'+':''}${x} m`,distance:x=>`${number(x)} m`,flightAngle:x=>`${number(x,1)}°`,soundLevel:x=>`${x} dB SPL`,noiseLevel:x=>`${x} dB SPL`,snrMargin:x=>`${x} dB`,lightIntensity:x=>`${x} mW/sr`,lightPulse:x=>x?`${number(x,1)} Hz`:'Liên tục',lightThreshold:x=>`${number(x,1)} µW/m²`,horizon:x=>`${number(x,1)} s`};
+function syncControls(){
+  for(const key of rangeKeys){const el=$(key);el.value=params[key];$(key+'-out').textContent=formats[key](params[key]);el.style.setProperty('--pct',`${(params[key]-Number(el.min))/(Number(el.max)-Number(el.min))*100}%`);}
+  for(const k of ['heading','escape','phase','seed',...numericSelects])$(k).value=params[k];
+  for(const k of checkKeys)$(k).checked=params[k];
+  $('aircraftAlt').disabled=params.centerLock;$('offset').disabled=params.centerLock;
+  if(params.centerLock){$('aircraftAlt-out').textContent=`${number(sim.initialPlane[2]/FT)} ft · tự căn`;$('offset-out').textContent='0 m · tự căn';}
+  $('flightAngle').disabled=['level','custom'].includes(params.phase);
+  $('manual-rate').hidden=params.phase!=='custom';
+  $('phase-note').textContent=params.phase==='landing'?'3° là đường lượn ILS thông thường theo FAA. Chưa mô phỏng flare/chạm bánh.':params.phase==='takeoff'?'Góc lấy độ cao là giả định để khảo sát, không phải dữ liệu hiệu năng A320. Đoạn bay sau nhấc bánh.':params.phase==='level'?'Giữ nguyên độ cao máy bay trong lượt này.':'Tốc độ đứng do người dùng chọn, không gắn với hiệu năng máy bay.';
+  $('sound-preview').disabled=params.soundHz>6400;
+  const vx=params.speed*KT-(params.heading==='headon'?-1:params.heading==='following'?1:0)*params.birdSpeed;
+  const vy=params.heading==='crossing'?params.birdSpeed:0;
+  const relSpeed=Math.hypot(vx,vy,aircraftVelocity(params)[2]),available=params.detection/relSpeed;
+  $('available-time').textContent=`${number(available,2)} s`;
+  const margin=available-params.latency;
+  $('available-note').textContent=`Trừ độ trễ: ${number(margin,2)} s. Ước lượng nếu bay vào cùng điểm; chưa trừ thời gian rẽ.`;
+  $('available-time').style.color=margin<=0?'var(--pink)':'var(--lime)';
+}
+function setParams(p,preset='custom'){
+  const next=new Simulation({...params,...p});
+  params={...next.p};sim=next;playing=false;calculating=false;$('preset').value=preset;
+  syncControls();update();draw();
+}
+function restart(){sim=new Simulation(params);playing=false;calculating=false;update();draw();}
+function togglePlay(){if(!sim.validPlan)return;calculating=false;if(sim.done)sim=new Simulation(params);playing=!playing;lastFrame=0;update();}
+for(const key of rangeKeys)$(key).addEventListener('input',()=>setParams({[key]:Number($(key).value)}));
+for(const key of ['heading','escape','phase',...numericSelects])$(key).addEventListener('change',()=>setParams({[key]:numericSelects.includes(key)?Number($(key).value):$(key).value}));
+$('seed').addEventListener('change',()=>{try{setParams({seed:Number($('seed').value)});}catch{syncControls();toast('Nhập hạt giống từ 1 đến 999999.');}});
+for(const key of checkKeys)$(key).addEventListener('change',()=>setParams({[key]:$(key).checked}));
+$('preset').addEventListener('change',()=>{if(PRESETS[$('preset').value])setParams(PRESETS[$('preset').value],$('preset').value);});
+$('new-seed').addEventListener('click',()=>setParams({seed:params.seed===999999?1:params.seed+1}));
+$('play').addEventListener('click',togglePlay);$('reset').addEventListener('click',restart);
+async function finishRun(){
+  playing=false;calculating=true;const run=sim;update();
+  while(!run.done&&sim===run&&calculating){
+    const started=performance.now();
+    do{run.step();}while(!run.done&&performance.now()-started<12);
+    update();draw();
+    // Yield between chunks even if this tab is backgrounded (rAF pauses there).
+    await new Promise(resolve=>{const channel=new MessageChannel();channel.port1.onmessage=()=>{channel.port1.close();channel.port2.close();resolve();};channel.port2.postMessage(null);});
+  }
+  if(sim===run){calculating=false;update();draw();}
+  return run.summary();
+}
+$('finish').addEventListener('click',finishRun);
+$('sound-preview').addEventListener('click',async()=>{
+  const AudioContext=window.AudioContext||window.webkitAudioContext;if(!AudioContext){toast('Trình duyệt không hỗ trợ nghe âm mẫu.');return;}
+  try{const ctx=new AudioContext();await ctx.resume();const oscillator=ctx.createOscillator(),gain=ctx.createGain();oscillator.type='sine';oscillator.frequency.value=params.soundHz;gain.gain.setValueAtTime(0,ctx.currentTime);gain.gain.linearRampToValueAtTime(.015,ctx.currentTime+.025);gain.gain.setValueAtTime(.015,ctx.currentTime+.35);gain.gain.linearRampToValueAtTime(0,ctx.currentTime+.4);oscillator.connect(gain);gain.connect(ctx.destination);oscillator.start();oscillator.stop(ctx.currentTime+.41);oscillator.onended=()=>ctx.close();toast(`Âm mẫu ${number(params.soundHz)} Hz · âm lượng không tương ứng dB mô hình.`);}catch{toast('Chưa phát được âm mẫu trên thiết bị này.');}
+});
+document.addEventListener('keydown',e=>{if(e.code==='Space'&&!['INPUT','SELECT','TEXTAREA','BUTTON'].includes(e.target.tagName)&&!$('method-dialog').open){e.preventDefault();togglePlay();}});
+function showMethod(){playing=false;calculating=false;update();$('method-dialog').showModal();}
+$('open-method').addEventListener('click',showMethod);$('open-method-bottom').addEventListener('click',showMethod);
+$('close-method').addEventListener('click',()=>$('method-dialog').close());
+$('method-dialog').addEventListener('click',e=>{if(e.target===$('method-dialog')){const r=e.target.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)e.target.close();}});
+function toast(message){$('toast').textContent=message;$('toast').classList.add('visible');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').classList.remove('visible'),2800);}
+function update(){
+  $('distance-value').innerHTML=`${number(sim.centerDistance)} <em>m</em>`;
+  $('reaction-value').innerHTML=sim.reactionMedian===null?'—':`${number(sim.reactionMedian)} <em>m</em>`;
+  $('clearance-value').innerHTML=Number.isFinite(sim.clearance)?`${number(sim.clearance,1)} <em>m</em>`:'—';
+  $('contact-value').innerHTML=`${sim.contacts} <em>/ ${params.count}</em>`;
+  $('contact-value').classList.toggle('danger',sim.contacts>0);
+  $('clearance-value').classList.toggle('danger',sim.clearance<=10);
+  $('detected-count').textContent=sim.detected;$('reacted-count').textContent=sim.reacted;$('near-count').textContent=sim.near;
+  $('cpa-value').textContent=sim.cpa?`${number(sim.cpa.time,1)} s`:sim.t?'Đã qua':'—';
+  $('sim-status').textContent=!sim.validPlan?'Cần chỉnh độ cao':sim.done?'Hoàn tất':calculating?'Đang tính':playing?'Đang mô phỏng':sim.t?'Tạm dừng':'Sẵn sàng';
+  $('sim-status').style.color=sim.contacts?'var(--pink)':'var(--lime)';
+  $('play').innerHTML=playing?'<span aria-hidden="true">Ⅱ</span> Tạm dừng':sim.done?'<span aria-hidden="true">↺</span> Chạy lại':'<span aria-hidden="true">▶</span> Chạy mô phỏng';
+  $('play').disabled=!sim.validPlan;$('finish').disabled=sim.done||calculating;
+  $('time-value').textContent=`${number(sim.t,1)} s`;$('duration-value').textContent=`/ ${number(sim.duration,1)} s`;
+  $('timeline-progress').style.width=`${Math.min(100,sim.t/sim.duration*100)}%`;
+  const first=sim.events.find(e=>e.kind==='alert');
+  let text=params.ballistic?'Đối chứng: từng chim giữ nguyên vận tốc, kể cả khi nhận tín hiệu. Cắt tâm không đồng nghĩa mọi chim giao cắt.':'Nhấn Chạy mô phỏng. Các dấu chim được phóng to; vị trí và khoảng cách dùng đơn vị thật.';
+  if(sim.t>0&&!first&&!params.ballistic)text='Chưa có kênh nào kích hoạt chờ né. Đàn đang giữ hướng bay và tương tác với láng giềng.';
+  if(first)text=`Kích hoạt đầu tiên: ${triggerNames[first.source]}, lúc ${number(first.time,2)} s; máy bay cách ${number(first.distance)} m. ${sim.reacted}/${params.count} chim đã bắt đầu né.`;
+  if(sim.contacts)text+=` Có ${sim.contacts} đường đi giao cắt khối máy bay.`;
+  if(sim.done)text=(sim.endReason||'Hoàn tất.')+' '+(first?`Kênh đầu tiên: ${triggerNames[first.source]}. `:params.ballistic?'Đối chứng giữ vận tốc. ':'Không kích hoạt né. ')+`${sim.contacts}/${params.count} chim giao cắt; ${sim.near} chim từng cách khối máy bay ≤10 m. Đây là kết quả mô hình.`;
+  if(!sim.validPlan)text=sim.planNote;
+  if($('narrative').textContent!==text)$('narrative').textContent=text;
+  const alt=sim.plane.pos[2]/FT;
+  $('altitude-context').textContent=`Máy bay hiện ở ${number(alt)} ft (${number(sim.plane.pos[2])} m) AGL — ${alt<=500?'nằm trong dải 0–500 ft':'cao hơn dải 0–500 ft'}. Độ chênh với tâm đàn: ${number(Math.abs(sim.center[2]-sim.plane.pos[2]))} m.`;
+  $('intercept-status').textContent=!sim.validPlan?sim.planNote:params.centerLock?`Giao cắt danh định: ${number(sim.nominalMiss,3)} m sai lệch tại ${number(sim.nominalTime,2)} s · ${number(params.birdAlt)} ft AGL. Chim có thể rời điểm hẹn khi rẽ.`:`Không khóa tâm · lệch ${number(sim.nominalMiss,1)} m khi bằng tọa độ dọc trục bay.`;
+  $('intercept-status').classList.toggle('danger',!sim.validPlan);
+  $('phase-badge').textContent=`${phaseNames[params.phase]} · ${sim.plane.vel[2]>0?'+':''}${number(sim.plane.vel[2],2)} m/s`;
+  $('horizon-label').textContent=number(params.horizon,1);
+  $('center-cpa').textContent=sim.contacts===params.count?'Không còn chim bay':sim.centerCPA?.approaching?`${number(sim.centerCPA.distance,1)} m / ${number(sim.centerCPA.time,1)} s`:'Đã qua cận tiếp';
+  $('future-alt').textContent=sim.contacts===params.count?'—':`${number(sim.predictedCenter[2]/FT,1)} ft`;
+  const heading=Math.atan2(sim.meanVelocity[1],sim.meanVelocity[0])*180/Math.PI;
+  $('future-heading').textContent=`Vận tốc tâm ${number(Math.hypot(...sim.meanVelocity),1)} m/s · hướng ${number(heading)}° từ +X`;
+  $('prediction-error').textContent=sim.predictionRMSE===null?'Chờ đủ H giây':`${number(sim.predictionRMSE,2)} m`;
+  for(const [key,label] of [['left','Trái +Y'],['right','Phải −Y'],['down','Xuống']])$('direction-'+key).textContent=`${label}: ${sim.directions[key]}`;
+  $('signal-mode').textContent=params.ballistic?'Đối chứng · không phản ứng':params.signalResponse?'Giả thuyết phản ứng':'Chỉ đo tín hiệu';
+  const sound=sim.sound,light=sim.light;
+  $('sound-level').textContent=!params.soundOn?'Tắt':!sound.arrived?'Âm chưa tới':`${number(sound.spl,1)} dB SPL`;
+  $('sound-detail').textContent=`Doppler: ${number(sound.frequency)} Hz · trễ truyền ${number(sound.delay,2)} s`;
+  $('sound-evidence').textContent=sound.criterion===null?sound.reference.note:`${sound.reference.note}. Mốc có nền âm: ${number(sound.criterion)} dB SPL. ${!params.soundOn?'Nguồn đang tắt; các trị số trên là tính toán nếu bật.':sound.arrived?(sound.aboveCriterion?'Đang vượt mốc sàng lọc.':'Chưa vượt mốc sàng lọc.'):'Nguồn bắt đầu phát tại t = 0.'}`;
+  $('light-level').textContent=params.lightOn?`${number(light.instant,2)} µW/m²`:'Tắt';
+  $('light-detail').textContent=`${params.lightNm} nm · ${params.lightPulse?number(params.lightPulse,1)+' Hz, duty 50%':'sáng liên tục'} · đỉnh ${number(light.peak,2)} µW/m²`;
+  $('light-evidence').textContent=`Mốc giả định: ${number(params.lightThreshold,1)} µW/m². Dòng photon ${params.lightOn?light.photonFlux.toExponential(2):'0'} photon/(m²·s). Chưa gán độ nhạy sinh học theo màu.`;
+  $('signal-counts').textContent=`Đã vượt mốc: âm ${sim.heard}/${params.count} · đèn ${sim.lit}/${params.count} · vào vùng robot ${sim.predatorAlerts}/${params.count}.`;
+}
+function prepare(canvas){
+  const r=canvas.getBoundingClientRect(),dpr=Math.min(window.devicePixelRatio||1,2);
+  const w=Math.max(1,r.width),h=Math.max(1,r.height);
+  if(canvas.width!==Math.round(w*dpr)||canvas.height!==Math.round(h*dpr)){canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);}
+  const ctx=canvas.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);return {ctx,w,h};
+}
+function line(c,x1,y1,x2,y2,color,width=1,dash=[]){c.beginPath();c.setLineDash(dash);c.moveTo(x1,y1);c.lineTo(x2,y2);c.strokeStyle=color;c.lineWidth=width;c.stroke();c.setLineDash([]);}
+function caption(c,text,x,y,color='#9caeb9',align='left'){c.fillStyle=color;c.font='11px ui-monospace, SFMono-Regular, Consolas, monospace';c.textAlign=align;c.fillText(text,x,y);c.textAlign='left';}
+function arrow(c,x,y,angle,size,color){c.save();c.translate(x,y);c.rotate(angle);c.beginPath();c.moveTo(size,0);c.lineTo(-size*.7,-size*.55);c.lineTo(-size*.15,0);c.lineTo(-size*.7,size*.55);c.closePath();c.fillStyle=color;c.fill();c.restore();}
+function bounds(w,h){
+  const live=sim.birds.filter(b=>b.state!=='contact'),pts=[sim.plane.pos,sim.nominalPoint,sim.predictedCenter,...(live.length?live:sim.birds).map(b=>b.pos)];
+  if(params.predator)pts.push(sim.predator.pos);
+  let xmin=Math.min(...pts.map(p=>p[0])),xmax=Math.max(...pts.map(p=>p[0]));
+  let ymin=Math.min(-40,...pts.map(p=>p[1])),ymax=Math.max(40,...pts.map(p=>p[1]));
+  const cx=(xmin+xmax)/2,cy=(ymin+ymax)/2;
+  const span=Math.max(450,xmax-xmin+200,(ymax-ymin+130)*(w-70)/(h-100));
+  const s=(w-70)/span;return {xmin:cx-span/2,xmax:cx+span/2,cx,cy,s};
+}
+function drawPlan(){
+  const {ctx:c,w,h}=prepare($('plan-canvas')),b=bounds(w,h),s=b.s;
+  const X=x=>w/2+(x-b.cx)*s,Y=y=>h/2+15-(y-b.cy)*s;
+  const grid=s>.85?50:100;
+  const ymin=b.cy-h/(2*s)-30,ymax=b.cy+h/(2*s)+30;
+  for(let x=Math.ceil(b.xmin/grid)*grid;x<b.xmax;x+=grid)line(c,X(x),40,X(x),h,'#1e2c36');
+  for(let y=Math.ceil(ymin/grid)*grid;y<ymax;y+=grid)line(c,0,Y(y),w,Y(y),'#1e2c36');
+  // Geometric projection of the nominal spherical detection threshold onto mean flock altitude.
+  const px=X(sim.plane.pos[0]),py=Y(0),dz=sim.center[2]-sim.plane.pos[2];
+  if(params.detection>Math.abs(dz)){
+    const radius=Math.sqrt(params.detection**2-dz**2)*s;
+    c.beginPath();c.arc(px,py,radius,0,Math.PI*2);c.fillStyle='#68d9d004';c.fill();c.setLineDash([5,6]);c.strokeStyle='#68d9d052';c.lineWidth=1;c.stroke();c.setLineDash([]);
+  }
+  const corridor=Math.max(3,17.9*s);c.fillStyle='#9cb2c008';c.fillRect(0,py-corridor,w,corridor*2);
+  line(c,0,py,w,py,'#a1b7c247',1,[7,8]);
+  const lastX=Math.min(w-22,px+150);arrow(c,lastX,py,0,4,'#93a5b1');
+  // Known encounter point for the frozen-velocity counterfactual, not a live homing target.
+  const ix=X(sim.nominalPoint[0]),iy=Y(sim.nominalPoint[1]);
+  line(c,ix-7,iy,ix+7,iy,'#a9b4c4',1.5);line(c,ix,iy-7,ix,iy+7,'#a9b4c4',1.5);
+  caption(c,'ĐIỂM HẸN CV',clamp(ix+12,10,w-95),clamp(iy+23,60,h-40),'#a9b4c4');
+  if(sim.contacts<params.count){
+    const cx=X(sim.center[0]),cy=Y(sim.center[1]),fx=X(sim.predictedCenter[0]),fy=Y(sim.predictedCenter[1]);
+    c.beginPath();c.arc(fx,fy,sim.predictionRadius*s,0,Math.PI*2);c.fillStyle='#f2bc6609';c.fill();c.strokeStyle='#f2bc6660';c.setLineDash([3,5]);c.lineWidth=1;c.stroke();c.setLineDash([]);
+    line(c,cx,cy,fx,fy,'#f2bc66',1.5,[4,3]);c.beginPath();c.arc(fx,fy,4,0,Math.PI*2);c.strokeStyle='#f2bc66';c.stroke();
+    caption(c,`CV +${number(params.horizon,1)} s`,clamp(fx+10,10,w-100),clamp(fy-10,65,h-50),'#f2bc66');
+  }
+  for(const bird of sim.birds){
+    if(bird.trail.length>1){c.beginPath();bird.trail.forEach((p,i)=>i?c.lineTo(X(p[0]),Y(p[1])):c.moveTo(X(p[0]),Y(p[1])));c.strokeStyle=colors[bird.state]+'35';c.lineWidth=1;c.stroke();}
+  }
+  // Blocks shown to scale; these are the same geometry used in contact checks.
+  c.fillStyle='#e9eff2';c.strokeStyle='#d8e6ed';c.lineWidth=.5;
+  for(const box of BOXES){const x=X(sim.plane.pos[0]+box.min[0]),y=Y(box.max[1]);const bw=(box.max[0]-box.min[0])*s,bh=(box.max[1]-box.min[1])*s;c.fillRect(x,y,Math.max(.8,bw),Math.max(.8,bh));}
+  if(params.lightOn){c.beginPath();c.arc(px+18.785*s,py,3,0,Math.PI*2);c.fillStyle=sim.light.on?({380:'#b993ff',470:'#78afff',525:'#7bea9c',630:'#ff8a87'}[params.lightNm]||'#ffffff'):'#4b5963';c.fill();}
+  if(params.predator){
+    c.beginPath();sim.predator.trail.forEach((p,i)=>i?c.lineTo(X(p[0]),Y(p[1])):c.moveTo(X(p[0]),Y(p[1])));c.strokeStyle='#c3a3f975';c.lineWidth=1;c.stroke();
+    const rx=X(sim.predator.pos[0]),ry=Y(sim.predator.pos[1]);arrow(c,rx,ry,Math.atan2(-sim.predator.vel[1],sim.predator.vel[0]),7,'#c3a3f9');caption(c,'CHIM CẮT ROBOT',clamp(rx+10,10,w-130),clamp(ry+22,70,h-40),'#c3a3f9');
+  }
+  for(const bird of sim.birds){const x=X(bird.pos[0]),y=Y(bird.pos[1]);if(bird.state==='contact'){line(c,x-4,y-4,x+4,y+4,colors.contact,1.5);line(c,x-4,y+4,x+4,y-4,colors.contact,1.5);}else arrow(c,x,y,Math.atan2(-bird.vel[1],bird.vel[0]),3.7,colors[bird.state]);}
+  caption(c,'MÁY BAY',clamp(px,50,w-100),py+35,'#dee6e9');
+  if(!sim.done&&sim.contacts<params.count){const cx=X(sim.center[0]),cy=Y(sim.center[1]);caption(c,`${params.count-sim.contacts} BỒ CÂU`,clamp(cx+22,20,w-100),clamp(cy-27,75,h-30),'#9de0d7');}
+  const barLength=100*s;line(c,w-22-barLength,h-23,w-22,h-23,'#a2b3bd',1);line(c,w-22-barLength,h-27,w-22-barLength,h-19,'#a2b3bd');line(c,w-22,h-27,w-22,h-19,'#a2b3bd');caption(c,'100 m',w-22-barLength/2,h-32,'#9caeb9','center');
+  $('scale-label').textContent=`Lưới ${grid} m · tự căn khung`;
+  $('view-note').textContent=params.detection===0?'Phát hiện máy bay đã tắt':Math.abs(dz)>params.detection?'Chênh cao lớn hơn ngưỡng phát hiện':`Phát hiện ${params.detection} m · chiếu tại độ cao tâm đàn`;
+}
+function drawSide(){
+  const {ctx:c,w,h}=prepare($('side-canvas')),b=bounds(w,$('plan-canvas').getBoundingClientRect().height),X=x=>w/2+(x-b.cx)*b.s;
+  const zmax=Math.max(700,Math.ceil(Math.max(sim.plane.pos[2]/FT+100,sim.initialPlane[2]/FT+100,sim.center[2]/FT+100,sim.predictedCenter[2]/FT+100)/100)*100),Z=z=>h-23-z/zmax*(h-65);
+  c.fillStyle='#def48a0a';c.fillRect(48,Z(500),w-60,Z(0)-Z(500));
+  line(c,48,Z(500),w-12,Z(500),'#def48a4a',1,[4,5]);
+  line(c,48,Z(0),w-12,Z(0),'#586957');
+  caption(c,'500',11,Z(500)+4,'#b6ca88');caption(c,'0',24,Z(0)+4);
+  if(zmax>850)caption(c,`${zmax}`,8,Z(zmax)+4);
+  caption(c,'SOL / MẶT ĐẤT',60,h-7,'#728578');
+  const pathTime=sim.plane.vel[2]<0?Math.min(sim.duration,(3-sim.initialPlane[2])/sim.plane.vel[2]):sim.duration;
+  const pathEnd=[sim.initialPlane[0]+sim.plane.vel[0]*pathTime,sim.initialPlane[2]+sim.plane.vel[2]*pathTime];
+  line(c,X(sim.initialPlane[0]),Z(sim.initialPlane[2]/FT),X(pathEnd[0]),Z(pathEnd[1]/FT),'#99aaba55',1,[6,6]);
+  const ix=X(sim.nominalPoint[0]),iz=Z(sim.nominalPoint[2]/FT);line(c,ix-5,iz,ix+5,iz,'#a9b4c4');line(c,ix,iz-5,ix,iz+5,'#a9b4c4');
+  if(sim.contacts<params.count)line(c,X(sim.center[0]),Z(sim.center[2]/FT),X(sim.predictedCenter[0]),Z(sim.predictedCenter[2]/FT),'#f2bc66',1.5,[4,3]);
+  if(params.predator){c.fillStyle='#c3a3f9';c.beginPath();c.arc(X(sim.predator.pos[0]),Z(sim.predator.pos[2]/FT),4,0,Math.PI*2);c.fill();}
+  for(const bird of sim.birds){
+    if(bird.trail.length>1){c.beginPath();bird.trail.forEach((p,i)=>i?c.lineTo(X(p[0]),Z(p[2]/FT)):c.moveTo(X(p[0]),Z(p[2]/FT)));c.strokeStyle=colors[bird.state]+'33';c.lineWidth=.8;c.stroke();}
+    const x=X(bird.pos[0]),y=Z(bird.pos[2]/FT);c.fillStyle=colors[bird.state];c.beginPath();c.arc(x,y,2.4,0,Math.PI*2);c.fill();
+  }
+  const px=X(sim.plane.pos[0]),pz=Z(sim.plane.pos[2]/FT);line(c,px-18.785*b.s,pz,px+18.785*b.s,pz,'#e7f0f4',3);arrow(c,px+18.785*b.s,pz,0,3,'#e7f0f4');
+  caption(c,`${number(sim.plane.pos[2]/FT)} ft`,clamp(px+10,55,w-75),Math.max(48,pz-13),'#ecf1f3');
+}
+function draw(){drawPlan();drawSide();}
+new ResizeObserver(draw).observe($('top-wrap'));
+function frame(timestamp){
+  if(lastFrame&&playing){const elapsed=Math.min((timestamp-lastFrame)/1000,.1);sim.advance(elapsed*Number($('playback-speed').value));uiElapsed+=elapsed;if(sim.done)playing=false;if(uiElapsed>.09||sim.done){update();uiElapsed=0;}draw();}
+  lastFrame=timestamp;requestAnimationFrame(frame);
+}
+function csvValue(x){if(x===null||x===undefined||x===Infinity)return '';return '"'+String(x).replaceAll('"','""')+'"';}
+function exportCSV(){
+  const headers=['model_version','valid_plan','run_finished','elapsed_s','bird_id','state','direct_detection_time_s','direct_detection_distance_m','warned_by_neighbor','alert_time_s','reaction_time_s','reaction_aircraft_distance_m','minimum_clearance_m','contact_time_s','contact_part','first_trigger','sound_time_s','sound_at_detection_dBSPL','sound_at_detection_Hz','light_time_s','predator_time_s','escape_target_x','escape_target_y','escape_target_z','final_x_m','final_y_m','final_z_m','velocity_x_ms','velocity_y_ms','velocity_z_ms','nominal_intersection_time_s','nominal_miss_m','effective_initial_aircraft_alt_ft','cv_rmse_m','cv_samples',...Object.keys(params).map(k=>'input_'+k)];
+  const rows=sim.birds.map(b=>['2.0',sim.validPlan,sim.done,sim.t,b.id,b.state,b.directAt,b.detectDistance,b.socialAlert,b.alertAt,b.reactTime,b.reactDistance,b.minClearance,b.contactTime,b.contactPart,b.trigger,b.soundAt,b.receivedSPL,b.receivedHz,b.lightAt,b.predatorAt,...(b.escapeVector||[null,null,null]),...b.pos,...b.vel,sim.nominalTime,sim.nominalMiss,sim.initialPlane[2]/FT,sim.predictionRMSE,sim.predictionN,...Object.values(params)]);
+  const csv='\uFEFF'+[headers,...rows].map(row=>row.map(csvValue).join(',')).join('\r\n');
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`pigeon-lab-seed-${params.seed}-${sim.done?'complete':'partial'}.csv`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+  toast(sim.done?'Đã xuất CSV của lượt hoàn tất.':'Đã xuất CSV một phần; lượt mô phỏng chưa kết thúc.');
+}
+$('export').addEventListener('click',exportCSV);
+$('export-json').addEventListener('click',()=>{
+  const data={...sim.summary(),units:'SI except input aircraftAlt/birdAlt (ft), speed (kt), lightIntensity (mW/sr), wavelength (nm)',seriesIntervalSeconds:.2,series:sim.series};
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`pigeon-lab-seed-${params.seed}-trace.json`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);toast('Đã xuất tham số, sự kiện và chuyển động tâm đàn · JSON.');
+});
+syncControls();update();draw();requestAnimationFrame(frame);
+// Optional browser-native structured interface; same state as visible controls.
+if(document.modelContext?.registerTool){
+  const lifecycle=new AbortController();
+  const defs=[{
+    name:'read_pigeon_simulation',title:'Đọc kết quả mô phỏng bồ câu',description:'Read the current exploratory simulation parameters and results. This is not a real-world risk estimate.',inputSchema:{type:'object',properties:{},additionalProperties:false},annotations:{readOnlyHint:true},execute:()=>sim.summary()
+  },{
+    name:'configure_pigeon_simulation',title:'Chọn kịch bản bồ câu',description:'Reset the visible simulation to a preset and optionally finish that one model run.',inputSchema:{type:'object',properties:{preset:{type:'string',enum:Object.keys(PRESETS)},finish:{type:'boolean'}},required:['preset'],additionalProperties:false},annotations:{readOnlyHint:false},execute:async input=>{
+      if(!input||!Object.hasOwn(PRESETS,input.preset)||Object.keys(input).some(k=>!['preset','finish'].includes(k))||('finish' in input&&typeof input.finish!=='boolean'))throw new TypeError('Kịch bản không hợp lệ');
+      setParams(PRESETS[input.preset],input.preset);if(input.finish)return await finishRun();return sim.summary();
+    }
+  }];
+  for(const def of defs)try{Promise.resolve(document.modelContext.registerTool(def,{signal:lifecycle.signal})).catch(()=>{});}catch{}
+  window.addEventListener('pagehide',()=>lifecycle.abort(),{once:true});
+}
+</script>
+</body>
+</html>
