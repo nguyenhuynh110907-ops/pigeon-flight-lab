@@ -1,0 +1,10 @@
+import {readFile,writeFile} from 'node:fs/promises';
+const dir=new URL('./dist/',import.meta.url);
+let html=await readFile(new URL('index.html',dir),'utf8');
+const css=await readFile(new URL('style.css',dir),'utf8');
+const sensors=(await readFile(new URL('sensors.mjs',dir),'utf8')).replace(/^export /gm,'');
+const core=(await readFile(new URL('model.mjs',dir),'utf8')).replace(/^import .*;\n/gm,'').replace(/^export /gm,'');
+const app=(await readFile(new URL('app.mjs',dir),'utf8')).replace(/^import .*;\n/,'');
+html=html.replace('<link rel="stylesheet" href="./style.css">',`<style>${css}</style>`).replace('<script type="module" src="./app.mjs"></script>',`<script type="module">${sensors}\n${core}\n${app}</script>`);
+await writeFile(new URL('Bo-cau-lab.html',dir),html);
+console.log('Built standalone HTML: dist/Bo-cau-lab.html');

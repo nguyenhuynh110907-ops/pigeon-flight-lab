@@ -1,0 +1,28 @@
+# Dependencies and local caches
+node_modules/
+__pycache__/
+*.py[cod]
+.cache/
+coverage/
+
+# Local configuration and credentials
+.env
+.env.*
+!.env.example
+
+# OS / editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.tmp
+*.log
+
+# Generated experiment exports and temporary review files
+pigeon-lab-seed-*.csv
+pigeon-lab-seed-*.json
+exports/
+qa-*.html
+dist/qa-*.html
+*.zip
